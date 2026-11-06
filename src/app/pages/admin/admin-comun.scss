@@ -1,0 +1,71 @@
+/* Estilos compartidos por las páginas del panel de administración */
+
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  h2 {
+    font-size: 1.9rem;
+  }
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .campo {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.estado-carga,
+.vacio {
+  padding: 24px 0;
+  color: var(--tinta-suave);
+}
+
+.alerta {
+  margin-bottom: 16px;
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 22px;
+  border-radius: var(--radio-m);
+  background: var(--blanco);
+  border: 1px solid var(--linea);
+
+  h3 {
+    grid-column: 1 / -1;
+    font-size: 1.3rem;
+  }
+
+  .ancho-completo {
+    grid-column: 1 / -1;
+  }
+
+  .botones {
+    grid-column: 1 / -1;
+  }
+}
+
+.secundario-texto {
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}

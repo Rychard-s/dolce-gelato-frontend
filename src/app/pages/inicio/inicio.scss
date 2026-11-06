@@ -1,0 +1,267 @@
+/* ---------- Carta ---------- */
+
+.carta {
+  margin-top: 64px;
+}
+
+.carta-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+
+  h2 {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+  }
+}
+
+.lineas {
+  display: inline-flex;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--blanco);
+  border: 2px solid var(--linea);
+}
+
+.linea {
+  display: grid;
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  text-align: left;
+  line-height: 1.2;
+  cursor: pointer;
+
+  strong {
+    font-family: var(--fuente-titulo);
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  span {
+    font-size: 0.8rem;
+    color: var(--tinta-suave);
+  }
+
+  &.activa {
+    background: var(--petroleo-hondo);
+    color: var(--blanco);
+
+    span {
+      color: #cfe4e7;
+    }
+  }
+
+  &.burger.activa {
+    background: var(--mostaza);
+    color: var(--tinta);
+
+    span {
+      color: #5a4a10;
+    }
+  }
+}
+
+.estado-carga {
+  margin-top: 32px;
+  color: var(--tinta-suave);
+}
+
+.carta > .alerta {
+  margin-top: 24px;
+}
+
+.atajos {
+  position: sticky;
+  top: 68px;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  margin: 24px calc(-1 * var(--margen)) 0;
+  padding: 12px var(--margen);
+  overflow-x: auto;
+  background: var(--nube);
+  scrollbar-width: none;
+
+  button {
+    flex: none;
+    padding: 8px 16px;
+    border: 2px solid var(--linea);
+    border-radius: 999px;
+    background: var(--blanco);
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--petroleo);
+    }
+  }
+}
+
+.categoria {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 32px;
+  padding: 40px 0;
+  border-bottom: 1px solid var(--linea);
+  scroll-margin-top: 140px;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.categoria-foto {
+  position: sticky;
+  top: 140px;
+  align-self: start;
+  aspect-ratio: 4 / 5;
+}
+
+.categoria-lista h3 {
+  font-size: 1.9rem;
+  margin-bottom: 8px;
+}
+
+.productos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.producto {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px dashed var(--linea);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  h4 {
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin-top: 4px;
+    font-size: 0.93rem;
+    color: var(--tinta-suave);
+    max-width: 60ch;
+  }
+
+  .horario {
+    color: var(--petroleo-hondo);
+    font-weight: 600;
+  }
+
+  &.apagado h4,
+  &.apagado .precio {
+    color: var(--tinta-suave);
+  }
+}
+
+.precio {
+  font-family: var(--fuente-titulo);
+  font-weight: 600;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.agregar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--petroleo-hondo);
+  color: var(--blanco);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    background: var(--tinta);
+    transform: scale(1.06);
+  }
+
+  &:disabled {
+    background: #c3d2d4;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* ---------- Aviso de producto agregado ---------- */
+
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px 12px 20px;
+  border-radius: 999px;
+  background: var(--tinta);
+  color: var(--blanco);
+  box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+  transform: translateX(-50%);
+  white-space: nowrap;
+
+  a {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--mostaza);
+    color: var(--tinta);
+    font-weight: 700;
+    text-decoration: none;
+  }
+}
+
+/* ---------- Celular ---------- */
+
+@media (max-width: 860px) {
+  .categoria {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 28px 0;
+  }
+
+  .categoria-foto {
+    position: static;
+    aspect-ratio: 16 / 7;
+  }
+}
+
+@media (max-width: 560px) {
+  .producto {
+    grid-template-columns: 1fr auto;
+
+    .precio {
+      grid-row: 1;
+      grid-column: 2;
+      align-self: start;
+    }
+
+    .agregar {
+      grid-column: 2;
+      justify-self: end;
+    }
+  }
+
+  .aviso {
+    left: 16px;
+    right: 16px;
+    transform: none;
+    white-space: normal;
+    justify-content: space-between;
+  }
+}

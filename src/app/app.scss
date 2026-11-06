@@ -1,0 +1,25 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+.saltar {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: var(--radio-s);
+  background: var(--mostaza);
+  color: var(--tinta);
+  font-weight: 600;
+
+  &:focus {
+    top: 12px;
+  }
+}

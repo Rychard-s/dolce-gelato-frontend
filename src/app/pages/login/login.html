@@ -1,0 +1,34 @@
+<div class="contenedor pagina">
+  <form class="tarjeta" [formGroup]="form" (ngSubmit)="ingresar()" novalidate>
+    <img src="img/logo-dolce-gelato.png" alt="Dolce Gelato" class="logo" width="170" height="40" />
+    <h1>Acceso del personal</h1>
+    <p class="bajada">Para cocina, caja y administración.</p>
+
+    @if (expirada()) {
+      <p class="alerta info">Tu sesión terminó. Vuelve a ingresar.</p>
+    }
+
+    <div class="campo">
+      <label for="usuario">Usuario</label>
+      <input id="usuario" formControlName="username" autocomplete="username" />
+      @if (form.controls.username.invalid && form.controls.username.touched) {
+        <span class="error-campo">Escribe tu usuario.</span>
+      }
+    </div>
+    <div class="campo">
+      <label for="clave">Contraseña</label>
+      <input id="clave" type="password" formControlName="password" autocomplete="current-password" />
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <span class="error-campo">Escribe tu contraseña.</span>
+      }
+    </div>
+
+    @if (mensaje()) {
+      <p class="alerta" role="alert">{{ mensaje() }}</p>
+    }
+
+    <button type="submit" class="boton ancho" [disabled]="ingresando()">
+      {{ ingresando() ? 'Ingresando…' : 'Ingresar' }}
+    </button>
+  </form>
+</div>

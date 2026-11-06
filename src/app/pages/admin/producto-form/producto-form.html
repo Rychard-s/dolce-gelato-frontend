@@ -1,0 +1,77 @@
+<div class="encabezado">
+  <h2>{{ editando ? 'Editar producto' : 'Nuevo producto' }}</h2>
+  <a class="boton secundario" routerLink="/admin/productos">Volver a la lista</a>
+</div>
+
+@if (mensaje()) { <p class="alerta" role="alert">{{ mensaje() }}</p> }
+
+<form class="formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+  <div class="campo ancho-completo">
+    <label for="nombre">Nombre</label>
+    <input id="nombre" formControlName="nombre" [class.con-error]="invalido('nombre')" />
+    @if (invalido('nombre')) { <span class="error-campo">El nombre es obligatorio (mínimo 3 caracteres).</span> }
+  </div>
+
+  <div class="campo ancho-completo">
+    <label for="descripcion">Descripción</label>
+    <textarea id="descripcion" rows="2" formControlName="descripcion"></textarea>
+  </div>
+
+  <div class="campo">
+    <label for="categoria">Categoría</label>
+    <select id="categoria" formControlName="categoriaId" [class.con-error]="invalido('categoriaId')">
+      <option [ngValue]="0">Elige una categoría</option>
+      @for (c of categorias(); track c.id) {
+        <option [ngValue]="c.id">{{ c.nombre }} ({{ c.linea === 'GELATO' ? 'Gelato' : 'Burger' }})</option>
+      }
+    </select>
+    @if (invalido('categoriaId')) { <span class="error-campo">Elige una categoría.</span> }
+  </div>
+
+  <div class="campo">
+    <label for="precio">Precio (S/)</label>
+    <input id="precio" type="number" step="0.10" min="0" formControlName="precio" [class.con-error]="invalido('precio')" />
+    @if (invalido('precio')) { <span class="error-campo">El precio debe ser mayor a 0.</span> }
+  </div>
+
+  <div class="campo">
+    <label for="inicio">Se vende desde</label>
+    <input id="inicio" type="time" formControlName="horaInicio" />
+  </div>
+
+  <div class="campo">
+    <label for="fin">Hasta</label>
+    <input id="fin" type="time" formControlName="horaFin" />
+    <span class="ayuda">Helados 10:00 a 22:00. Burgers 18:30 a 22:00.</span>
+  </div>
+
+  <div class="campo">
+    <label for="sabores">Sabores de helado (0 a 3)</label>
+    <input id="sabores" type="number" min="0" max="3" formControlName="cantidadSabores" [class.con-error]="invalido('cantidadSabores')" />
+  </div>
+
+  <div class="campo">
+    <label for="liquidos">Toppings líquidos incluidos</label>
+    <input id="liquidos" type="number" min="0" max="3" formControlName="toppingsLiquidos" [class.con-error]="invalido('toppingsLiquidos')" />
+  </div>
+
+  <div class="campo">
+    <label for="solidos">Toppings sólidos incluidos</label>
+    <input id="solidos" type="number" min="0" max="3" formControlName="toppingsSolidos" [class.con-error]="invalido('toppingsSolidos')" />
+  </div>
+
+  <div class="campo check">
+    <input id="delivery" type="checkbox" formControlName="aptoDelivery" />
+    <label for="delivery">Se puede pedir por delivery</label>
+  </div>
+
+  <div class="campo check">
+    <input id="activo" type="checkbox" formControlName="activo" />
+    <label for="activo">Mostrar en la carta</label>
+  </div>
+
+  <div class="botones">
+    <button type="submit" class="boton" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar producto' }}</button>
+    <a class="boton secundario" routerLink="/admin/productos">Cancelar</a>
+  </div>
+</form>

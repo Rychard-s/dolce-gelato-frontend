@@ -1,0 +1,49 @@
+<div class="contenedor pagina">
+  <h1>Sigue tu pedido</h1>
+
+  <form class="buscador" (submit)="enviar($event, campo.value)">
+    <div class="campo">
+      <label for="codigo">Código de seguimiento</label>
+      <input #campo id="codigo" [value]="codigo() ?? ''" placeholder="Ej. K7M2QX9P" autocomplete="off"
+        maxlength="10" autocapitalize="characters" />
+    </div>
+    <button type="submit" class="boton">Buscar</button>
+  </form>
+
+  @if (cargando()) {
+    <p class="cargando">Buscando tu pedido…</p>
+  } @else if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  } @else if (datos(); as d) {
+    <section class="estado" aria-live="polite">
+      <div class="cabecera-estado">
+        <div>
+          <p class="codigo">Pedido {{ d.codigo }}</p>
+          <h2>{{ nombreEstado[d.estado] }}</h2>
+        </div>
+        <dl>
+          <div><dt>Entrega</dt><dd>{{ d.tipoEntrega === 'DELIVERY' ? 'Delivery' : 'Recojo en tienda' }}</dd></div>
+          @if (d.horaSolicitada) { <div><dt>Hora</dt><dd>{{ horaCorta(d.horaSolicitada) }}</dd></div> }
+          <div><dt>Total</dt><dd>{{ d.total | soles }}</dd></div>
+        </dl>
+      </div>
+
+      @if (d.estado === 'CANCELADO') {
+        <p class="alerta">Este pedido fue cancelado. Si tienes dudas, escríbenos por WhatsApp.</p>
+      } @else {
+        <ol class="pasos">
+          @for (paso of pasos(); track paso; let i = $index) {
+            <li [class.hecho]="i < pasoActual()" [class.actual]="i === pasoActual()">
+              <span class="marca" aria-hidden="true">{{ i + 1 }}</span>
+              <div>
+                <strong>{{ nombreEstado[paso] }}</strong>
+                @if (i === pasoActual()) { <p>{{ descripcion(paso) }}</p> }
+              </div>
+            </li>
+          }
+        </ol>
+        <p class="nota">Esta página se actualiza sola cada 20 segundos.</p>
+      }
+    </section>
+  }
+</div>

@@ -1,0 +1,29 @@
+.pagina {
+  padding-top: 56px;
+}
+
+.tarjeta {
+  display: grid;
+  gap: 18px;
+  max-width: 420px;
+  margin-inline: auto;
+  padding: 36px 32px;
+  border-radius: var(--radio-l);
+  background: var(--blanco);
+  border: 1px solid var(--linea);
+  box-shadow: var(--sombra);
+
+  .logo {
+    height: 36px;
+    width: auto;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+.bajada {
+  margin-top: -10px;
+  color: var(--tinta-suave);
+}

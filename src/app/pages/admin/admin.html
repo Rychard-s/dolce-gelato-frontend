@@ -1,0 +1,11 @@
+<div class="contenedor panel">
+  <nav class="menu-admin" aria-label="Administración">
+    <h1>Administración</h1>
+    @for (s of secciones; track s.ruta) {
+      <a [routerLink]="s.ruta" routerLinkActive="activo">{{ s.texto }}</a>
+    }
+  </nav>
+  <section class="contenido">
+    <router-outlet />
+  </section>
+</div>

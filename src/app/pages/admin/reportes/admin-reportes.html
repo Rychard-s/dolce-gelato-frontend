@@ -1,0 +1,53 @@
+<div class="encabezado">
+  <h2>Reportes</h2>
+  <button type="button" class="boton secundario" (click)="cargar()">Recargar</button>
+</div>
+
+@if (error()) { <p class="alerta" role="alert">{{ error() }}</p> }
+
+<div class="cifras">
+  <div class="cifra"><strong>{{ entregados().length }}</strong><span>pedidos entregados</span></div>
+  <div class="cifra"><strong>{{ totalVendido() | soles }}</strong><span>vendido en pedidos entregados</span></div>
+  <div class="cifra"><strong>{{ porTipo().recojo }} / {{ porTipo().delivery }}</strong><span>recojo / delivery</span></div>
+  <div class="cifra"><strong>{{ cancelados().length }}</strong><span>pedidos cancelados</span></div>
+</div>
+
+<section class="bloque">
+  <h3>Productos más vendidos</h3>
+  @if (masVendidos().length === 0) {
+    <p class="vacio">Todavía no hay ventas registradas.</p>
+  } @else {
+    <ol class="barras">
+      @for (p of masVendidos(); track p.nombreProducto) {
+        <li>
+          <span class="nombre">{{ p.nombreProducto }}</span>
+          <span class="barra"><span [style.width]="ancho(p.cantidad)"></span></span>
+          <span class="cantidad">{{ p.cantidad }}</span>
+        </li>
+      }
+    </ol>
+  }
+</section>
+
+<section class="bloque">
+  <h3>Pedidos entregados</h3>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead><tr><th>Código</th><th>Hora</th><th>Cliente</th><th>Entrega</th><th>Pago</th><th>Total</th></tr></thead>
+      <tbody>
+        @for (p of entregados(); track p.id) {
+          <tr>
+            <td><strong>{{ p.codigoSeguimiento }}</strong></td>
+            <td>{{ horaDe(p.creadoEn) }}</td>
+            <td>{{ p.nombreCliente }}</td>
+            <td>{{ p.tipoEntrega === 'DELIVERY' ? 'Delivery' : 'Recojo' }}</td>
+            <td>{{ p.pagado ? p.metodoPago : 'Sin registrar' }}</td>
+            <td>{{ p.total | soles }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6" class="vacio">Aún no hay pedidos entregados.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

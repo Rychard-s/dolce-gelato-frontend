@@ -1,0 +1,26 @@
+<footer class="pie">
+  <div class="contenedor rejilla">
+    <div class="logos">
+      <img src="img/logo-dolce-gelato-blanco.png" alt="Dolce Gelato" width="170" height="40" />
+      <img src="img/logo-dolce-burger-blanco.png" alt="Dolce Burger" width="72" height="72" class="burger" />
+    </div>
+
+    <div>
+      <h2>Visítanos</h2>
+      <p>{{ negocio.direccion }}</p>
+      <p>Gelato y café de 10:00 a 22:00</p>
+      <p>Dolce Burger de 18:30 a 22:00</p>
+    </div>
+
+    <div>
+      <h2>Escríbenos</h2>
+      <p><a [href]="'https://wa.me/' + negocio.whatsapp" target="_blank" rel="noopener">WhatsApp {{ negocio.whatsappVisible }}</a></p>
+      <p><a [href]="negocio.instagramGelato" target="_blank" rel="noopener">Instagram de Dolce Gelato</a></p>
+      <p><a [href]="negocio.instagramBurger" target="_blank" rel="noopener">Instagram de Dolce Burger</a></p>
+    </div>
+  </div>
+
+  <div class="contenedor nota">
+    <p>La pasión hecha sabor. Prototipo académico del curso Soluciones Web, UPN {{ anio }}. <a routerLink="/login">Acceso del personal</a></p>
+  </div>
+</footer>

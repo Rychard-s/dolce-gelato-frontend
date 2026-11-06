@@ -1,59 +1,57 @@
-# Frontend
+# Dolce Gelato · Frontend (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.6.
+Sistema web de pedidos para Dolce Gelato y Dolce Burger (Jesús María, Lima).
+Proyecto del curso **Soluciones Web y Aplicaciones Distribuidas**, UPN.
 
-## Development server
+El backend (Spring Boot) está en el repositorio `dolce-gelato-backend`.
 
-To start a local development server, run:
+## Requisitos
+
+- Node.js LTS y Angular CLI (`npm install -g @angular/cli`)
+- El backend corriendo en `http://localhost:8080`
+
+## Cómo ejecutar
+
+Orden recomendado: **MySQL → backend → frontend**.
 
 ```bash
+npm install      # solo la primera vez
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abrir `http://localhost:4200`.
 
-## Code scaffolding
+## Usuarios de prueba
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+| Usuario | Contraseña | Rol | Entra a |
+|---|---|---|---|
+| admin | admin123 | Administrador | `/admin` y `/cocina` |
+| cocina | cocina123 | Cocina / caja | `/cocina` |
 
-```bash
-ng generate component component-name
+El acceso del personal está en el pie de página o en `/login`.
+
+## Páginas
+
+| Ruta | Quién | Para qué |
+|---|---|---|
+| `/` | Cliente | Inicio, promociones y carta |
+| `/pedido` | Cliente | Carrito, recojo o delivery, datos y confirmación |
+| `/pedido/:codigo` | Cliente | Pedido recibido, total final y WhatsApp |
+| `/seguimiento/:codigo` | Cliente | Estado del pedido (se actualiza solo) |
+| `/cocina` | Cocina y admin | Cola de pedidos, estados, pago y aviso por WhatsApp |
+| `/admin/...` | Admin | Productos, sabores y toppings, promociones, zonas, usuarios y reportes |
+
+## Estructura
+
+```
+src/app
+├── models/        interfaces que tipan los datos del backend (una por entidad)
+├── services/      un servicio por recurso de la API (HttpClient)
+├── interceptors/  agrega el token a cada petición
+├── guards/        protege las páginas internas por rol
+├── components/    piezas reutilizables (cabecera, pie, armar producto)
+├── pages/         una carpeta por página
+└── shared/        configuración, utilidades y pipe de soles
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+La URL del backend está en `src/app/shared/config.ts`.

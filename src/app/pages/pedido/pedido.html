@@ -1,0 +1,154 @@
+<div class="contenedor pagina">
+  <h1>Tu pedido</h1>
+
+  @if (carrito.items().length === 0) {
+    <div class="vacio">
+      <p>Todavía no agregaste nada. Elige tu gelato o tu burger en la carta.</p>
+      <a class="boton" routerLink="/" fragment="carta">Ver la carta</a>
+    </div>
+  } @else {
+    <form class="rejilla" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      <!-- Columna izquierda: productos y datos -->
+      <div class="columna">
+        <section class="bloque" aria-labelledby="titulo-productos">
+          <h2 id="titulo-productos">Productos</h2>
+          <ul class="items">
+            @for (item of carrito.items(); track item.clave) {
+              <li class="item">
+                <div class="item-info">
+                  <h3>{{ item.producto.nombre }}</h3>
+                  @if (detalleItem(item)) { <p>{{ detalleItem(item) }}</p> }
+                  @if (esDelivery() && !item.producto.aptoDelivery) {
+                    <p class="no-apto">Solo para recoger en tienda</p>
+                  }
+                </div>
+                <div class="cantidad" role="group" [attr.aria-label]="'Cantidad de ' + item.producto.nombre">
+                  <button type="button" (click)="carrito.cambiarCantidad(item.clave, item.cantidad - 1)"
+                    [attr.aria-label]="item.cantidad === 1 ? 'Quitar ' + item.producto.nombre : 'Quitar uno'">−</button>
+                  <span>{{ item.cantidad }}</span>
+                  <button type="button" (click)="carrito.cambiarCantidad(item.clave, item.cantidad + 1)" aria-label="Agregar uno">+</button>
+                </div>
+                <span class="item-precio">{{ item.precioUnitario * item.cantidad | soles }}</span>
+              </li>
+            }
+          </ul>
+          <a routerLink="/" fragment="carta" class="seguir">Agregar algo más</a>
+        </section>
+
+        <section class="bloque" aria-labelledby="titulo-entrega">
+          <h2 id="titulo-entrega">¿Cómo lo recibes?</h2>
+          <div class="opciones-entrega" role="radiogroup" aria-label="Forma de entrega">
+            <button type="button" role="radio" [attr.aria-checked]="!esDelivery()" [class.activa]="!esDelivery()"
+              (click)="tipoEntrega.set('RECOJO')">
+              <strong>Recojo en tienda</strong>
+              <span>{{ negocio.direccion }}</span>
+            </button>
+            <button type="button" role="radio" [attr.aria-checked]="esDelivery()" [class.activa]="esDelivery()"
+              (click)="tipoEntrega.set('DELIVERY')">
+              <strong>Delivery</strong>
+              <span>Costo según tu zona</span>
+            </button>
+          </div>
+
+          @if (esDelivery()) {
+            <div class="campos">
+              <div class="campo">
+                <label for="zona">Zona</label>
+                <select id="zona" formControlName="zonaId">
+                  <option [ngValue]="0">Elige tu distrito</option>
+                  @for (z of zonas(); track z.id) {
+                    <option [ngValue]="z.id">{{ z.nombre }}: envío {{ z.costoEnvio | soles }}</option>
+                  }
+                </select>
+                @if (zona(); as z) {
+                  @if (z.pedidoMinimo > 0) { <span class="ayuda">Pedido mínimo {{ z.pedidoMinimo | soles }}</span> }
+                }
+              </div>
+              <div class="campo">
+                <label for="direccion">Dirección</label>
+                <input id="direccion" autocomplete="street-address" formControlName="direccion"
+                  placeholder="Av. Salaverry 1234, dpto. 301" />
+              </div>
+              <div class="campo">
+                <label for="referencia">Referencia</label>
+                <input id="referencia" formControlName="referencia"
+                  placeholder="Frente al parque, puerta verde" />
+              </div>
+            </div>
+          }
+        </section>
+
+        <section class="bloque" aria-labelledby="titulo-hora">
+          <h2 id="titulo-hora">¿Para qué hora?</h2>
+          @if (debeProgramar()) {
+            <p class="alerta info">Tu pedido tiene productos que están disponibles desde las {{ horaMinima() }}. Elige la hora.</p>
+          } @else {
+            <div class="opciones-entrega compacta" role="radiogroup" aria-label="Hora del pedido">
+              <button type="button" role="radio" [attr.aria-checked]="!programar()" [class.activa]="!programar()"
+                (click)="programar.set(false)"><strong>Lo antes posible</strong></button>
+              <button type="button" role="radio" [attr.aria-checked]="programar()" [class.activa]="programar()"
+                (click)="programar.set(true)"><strong>Elegir hora</strong></button>
+            </div>
+          }
+          @if (programar() || debeProgramar()) {
+            <div class="campo hora">
+              <label for="hora">Hora</label>
+              <input id="hora" type="time" [min]="horaMinima() ?? ''" max="21:45" formControlName="hora" />
+              <span class="ayuda">Recibimos pedidos hasta las 21:45.</span>
+            </div>
+          }
+        </section>
+
+        <section class="bloque" aria-labelledby="titulo-datos">
+          <h2 id="titulo-datos">Tus datos</h2>
+          <div class="campos dos">
+            <div class="campo">
+              <label for="nombre">Nombre</label>
+              <input id="nombre" autocomplete="given-name" formControlName="nombre" [class.con-error]="invalido('nombre')" />
+              @if (invalido('nombre')) { <span class="error-campo">Escribe tu nombre (mínimo 2 letras).</span> }
+            </div>
+            <div class="campo">
+              <label for="telefono">Celular</label>
+              <input id="telefono" type="tel" inputmode="numeric" maxlength="9" autocomplete="tel-national"
+                formControlName="telefono" placeholder="987654321" [class.con-error]="invalido('telefono')" />
+              @if (invalido('telefono')) {
+                <span class="error-campo">Debe tener 9 dígitos y empezar con 9.</span>
+              } @else {
+                <span class="ayuda">Te escribimos por WhatsApp si hay algún cambio.</span>
+              }
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Columna derecha: resumen -->
+      <aside class="resumen" aria-labelledby="titulo-resumen">
+        <h2 id="titulo-resumen">Resumen</h2>
+        <dl>
+          <div><dt>Productos</dt><dd>{{ carrito.subtotal() | soles }}</dd></div>
+          @if (esDelivery()) {
+            <div><dt>Envío</dt><dd>{{ zona() ? (envio() | soles) : 'Elige tu zona' }}</dd></div>
+          }
+          <div class="total"><dt>Total estimado</dt><dd>{{ totalEstimado() | soles }}</dd></div>
+        </dl>
+        <p class="nota">Si tu pedido tiene una promoción, el descuento se aplica al confirmar. Pagas al recoger o recibir: efectivo, Yape, Plin o tarjeta.</p>
+
+        @if (intentoEnviar() && errores().length > 0) {
+          <div class="alerta" role="alert">
+            Revisa estos datos:
+            <ul>
+              @for (e of errores(); track e) { <li>{{ e }}</li> }
+            </ul>
+          </div>
+        }
+        @if (errorServidor()) {
+          <p class="alerta" role="alert">{{ errorServidor() }}</p>
+        }
+
+        <button type="submit" class="boton ancho" [disabled]="enviando()">
+          {{ enviando() ? 'Enviando…' : 'Confirmar pedido' }}
+        </button>
+      </aside>
+    </form>
+  }
+</div>

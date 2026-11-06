@@ -1,0 +1,118 @@
+<dialog #dialogo class="ventana" [attr.aria-labelledby]="'titulo-armar'" (close)="cerrar.emit()" (click)="clicEnFondo($event)">
+  <div class="caja">
+    <header class="encabezado">
+      <div>
+        <h2 id="titulo-armar">{{ producto().nombre }}</h2>
+        @if (producto().descripcion) {
+          <p>{{ producto().descripcion }}</p>
+        }
+      </div>
+      <button type="button" class="cerrar" (click)="cerrarVentana()" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
+      </button>
+    </header>
+
+    <div class="cuerpo">
+      @if (cargando()) {
+        <p class="cargando">Cargando opciones…</p>
+      } @else if (error()) {
+        <p class="alerta">{{ error() }}</p>
+      } @else {
+
+        <!-- Sabores (RN-02) -->
+        @if (producto().cantidadSabores > 0) {
+          <fieldset class="grupo">
+            <legend>
+              <span>Sabores</span>
+              <span class="indicacion" [class.completo]="saboresElegidos().length === producto().cantidadSabores">
+                {{ saboresElegidos().length }} de {{ producto().cantidadSabores }}
+              </span>
+            </legend>
+            <div class="chips">
+              @for (sabor of sabores(); track sabor.id) {
+                <button type="button" class="chip" [class.elegido]="saborElegido(sabor)"
+                  [attr.aria-pressed]="saborElegido(sabor)" (click)="alternarSabor(sabor)">
+                  {{ sabor.nombre }}
+                </button>
+              }
+            </div>
+          </fieldset>
+        }
+
+        <!-- Toppings (RN-03) -->
+        @if (llevaToppings()) {
+          <fieldset class="grupo">
+            <legend>
+              <span>Toppings</span>
+              <span class="indicacion">
+                Incluye {{ producto().toppingsLiquidos }} líquido{{ producto().toppingsLiquidos === 1 ? '' : 's' }}
+                y {{ producto().toppingsSolidos }} sólido{{ producto().toppingsSolidos === 1 ? '' : 's' }}
+              </span>
+            </legend>
+            <p class="nota">Cada topping adicional cuesta S/ 3.00.</p>
+
+            <h3 class="subgrupo">Líquidos</h3>
+            <div class="chips">
+              @for (topping of liquidos(); track topping.id) {
+                <button type="button" class="chip" [class.elegido]="toppingElegido(topping)"
+                  [attr.aria-pressed]="toppingElegido(topping)" (click)="alternarTopping(topping)">
+                  {{ topping.nombre }}
+                  @if (esExtra(topping)) { <span class="extra">+{{ topping.precioExtra | soles }}</span> }
+                </button>
+              }
+            </div>
+
+            <h3 class="subgrupo">Sólidos</h3>
+            <div class="chips">
+              @for (topping of solidos(); track topping.id) {
+                <button type="button" class="chip" [class.elegido]="toppingElegido(topping)"
+                  [attr.aria-pressed]="toppingElegido(topping)" (click)="alternarTopping(topping)">
+                  {{ topping.nombre }}
+                  @if (esExtra(topping)) { <span class="extra">+{{ topping.precioExtra | soles }}</span> }
+                </button>
+              }
+            </div>
+          </fieldset>
+        }
+
+        <!-- Opciones (RN-04) -->
+        @for (grupo of grupos(); track grupo.nombre) {
+          <fieldset class="grupo">
+            <legend>
+              <span>{{ grupo.nombre }}</span>
+              <span class="indicacion">{{ indicacion(grupo) }}</span>
+            </legend>
+            <div class="chips">
+              @for (opcion of grupo.opciones; track opcion.id) {
+                <button type="button" class="chip" [class.elegido]="opcionElegida(opcion)"
+                  [attr.aria-pressed]="opcionElegida(opcion)" (click)="alternarOpcion(opcion, grupo)">
+                  {{ opcion.nombre }}
+                </button>
+              }
+            </div>
+          </fieldset>
+        }
+
+        @if (producto().cantidadSabores === 0 && !llevaToppings() && grupos().length === 0) {
+          <p class="nota">Este producto no necesita elegir nada. Solo indica la cantidad.</p>
+        }
+      }
+    </div>
+
+    <footer class="pie">
+      @if (faltantes().length > 0 && !cargando()) {
+        <p class="faltan">{{ faltantes().join(' · ') }}</p>
+      }
+      <div class="acciones">
+        <div class="cantidad" role="group" aria-label="Cantidad">
+          <button type="button" (click)="cambiarCantidad(-1)" [disabled]="cantidad() === 1" aria-label="Quitar uno">−</button>
+          <span aria-live="polite">{{ cantidad() }}</span>
+          <button type="button" (click)="cambiarCantidad(1)" [disabled]="cantidad() === 20" aria-label="Agregar uno">+</button>
+        </div>
+        <button type="button" class="boton" [disabled]="cargando() || !!error() || faltantes().length > 0" (click)="agregar()">
+          Agregar {{ total() | soles }}
+        </button>
+      </div>
+    </footer>
+  </div>
+</dialog>

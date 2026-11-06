@@ -1,1 +1,379 @@
-/* You can add global styles to this file, and also import other style files */
+/* ===================== Dolce Gelato: estilos globales ===================== */
+/* Colores tomados de la carta oficial 2026 */
+
+:root {
+  --petroleo: #448793;
+  --petroleo-hondo: #2d5963;
+  --petroleo-claro: #e4eff0;
+  --nube: #f5f9f9;
+  --mostaza: #f5be19;
+  --mostaza-claro: #fdf1c7;
+  --tinta: #1d1d1b;
+  --tinta-suave: #56676c;
+  --fresa: #c8394f;
+  --fresa-claro: #fbe7ea;
+  --blanco: #ffffff;
+  --linea: #d3e3e5;
+
+  --fuente-titulo: 'Fredoka', 'Trebuchet MS', sans-serif;
+  --fuente-texto: 'Figtree', 'Segoe UI', sans-serif;
+
+  --radio-s: 10px;
+  --radio-m: 18px;
+  --radio-l: 28px;
+  --sombra: 0 10px 30px -18px rgba(45, 89, 99, 0.55);
+
+  --ancho: 1120px;
+  --margen: clamp(16px, 4vw, 32px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
+body {
+  margin: 0;
+  background: var(--nube);
+  color: var(--tinta);
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--fuente-titulo);
+  font-weight: 600;
+  line-height: 1.12;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--petroleo-hondo);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--mostaza);
+  outline-offset: 2px;
+}
+
+.contenedor {
+  width: min(100% - 2 * var(--margen), var(--ancho));
+  margin-inline: auto;
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Botones ---------- */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--petroleo-hondo);
+  color: var(--blanco);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    background: var(--tinta);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    background: #a9b9bc;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &.secundario {
+    background: transparent;
+    color: var(--petroleo-hondo);
+    box-shadow: inset 0 0 0 2px var(--petroleo-hondo);
+
+    &:hover {
+      background: var(--petroleo-claro);
+    }
+  }
+
+  &.mostaza {
+    background: var(--mostaza);
+    color: var(--tinta);
+
+    &:hover {
+      background: #ffd24a;
+    }
+  }
+
+  &.ancho {
+    width: 100%;
+  }
+}
+
+/* ---------- Campos de formulario ---------- */
+
+.campo {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+
+  label {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 14px;
+    border: 2px solid var(--linea);
+    border-radius: var(--radio-s);
+    background: var(--blanco);
+
+    &:focus {
+      border-color: var(--petroleo);
+      outline: none;
+    }
+  }
+
+  .ayuda {
+    font-size: 0.85rem;
+    color: var(--tinta-suave);
+  }
+
+  .con-error {
+    border-color: var(--fresa);
+  }
+
+  .error-campo {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--fresa);
+  }
+
+  &.check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    input {
+      width: 20px;
+      min-height: 20px;
+      height: 20px;
+      accent-color: var(--petroleo-hondo);
+    }
+  }
+}
+
+/* ---------- Tablas (paneles internos) ---------- */
+
+.tabla-contenedor {
+  overflow-x: auto;
+  border-radius: var(--radio-m);
+  border: 1px solid var(--linea);
+  background: var(--blanco);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+
+  th,
+  td {
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--linea);
+  }
+
+  th {
+    background: var(--nube);
+    font-weight: 700;
+    color: var(--tinta-suave);
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .acciones-tabla {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+}
+
+.boton-mini {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--petroleo-claro);
+  color: var(--petroleo-hondo);
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    background: #d2e6e8;
+  }
+
+  &.peligro {
+    background: var(--fresa-claro);
+    color: #8c1f30;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.etiqueta {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--petroleo-claro);
+  color: var(--petroleo-hondo);
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  &.apagada {
+    background: #eceeee;
+    color: var(--tinta-suave);
+  }
+
+  &.alerta-etiqueta {
+    background: var(--fresa-claro);
+    color: #8c1f30;
+  }
+
+  &.mostaza {
+    background: var(--mostaza-claro);
+    color: #6b5100;
+  }
+}
+
+/* Interruptor (agotado / disponible) */
+.interruptor {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  background: #c3d2d4;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--blanco);
+    transition: transform 0.15s ease;
+  }
+
+  &[aria-checked='true'] {
+    background: #2fae6a;
+
+    &::after {
+      transform: translateX(20px);
+    }
+  }
+}
+
+/* ---------- Avisos ---------- */
+
+.alerta {
+  padding: 14px 16px;
+  border-radius: var(--radio-s);
+  background: var(--fresa-claro);
+  color: #7d1d2c;
+  border-left: 4px solid var(--fresa);
+
+  &.info {
+    background: var(--petroleo-claro);
+    color: var(--petroleo-hondo);
+    border-left-color: var(--petroleo);
+  }
+
+  ul {
+    margin: 6px 0 0;
+    padding-left: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

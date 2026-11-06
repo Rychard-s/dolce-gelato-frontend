@@ -1,0 +1,60 @@
+<div class="contenedor pagina">
+  @if (pedido(); as p) {
+    <section class="tarjeta">
+      <h1>¡Recibimos tu pedido, {{ p.nombreCliente }}!</h1>
+      <p class="bajada">
+        @if (p.tipoEntrega === 'DELIVERY') {
+          Lo preparamos y te lo llevamos a {{ p.direccion }}.
+        } @else {
+          Te avisamos cuando esté listo para recoger en {{ negocio.direccion }}.
+        }
+        @if (p.horaSolicitada) { Hora elegida: {{ horaCorta(p.horaSolicitada) }}. }
+      </p>
+
+      <div class="codigo">
+        <span>Tu código de seguimiento</span>
+        <strong>{{ p.codigoSeguimiento }}</strong>
+        <button type="button" class="copiar" (click)="copiarCodigo()">{{ copiado() ? 'Copiado' : 'Copiar código' }}</button>
+      </div>
+
+      <ul class="detalles">
+        @for (d of p.detalles; track d.id) {
+          <li>
+            <div>
+              <strong>{{ d.cantidad }} x {{ d.nombreProducto }}</strong>
+              @if (d.sabores) { <p>{{ d.sabores }}</p> }
+              @if (d.toppings) { <p>{{ d.toppings }}</p> }
+              @if (d.opciones) { <p>{{ d.opciones }}</p> }
+            </div>
+            <span>{{ d.subtotal | soles }}</span>
+          </li>
+        }
+      </ul>
+
+      <dl class="montos">
+        <div><dt>Productos</dt><dd>{{ p.subtotal | soles }}</dd></div>
+        @if (p.descuento > 0) {
+          <div class="descuento"><dt>{{ p.promocion?.titulo ?? 'Promoción' }}</dt><dd>−{{ p.descuento | soles }}</dd></div>
+        }
+        @if (p.tipoEntrega === 'DELIVERY') {
+          <div><dt>Envío a {{ p.zona?.nombre }}</dt><dd>{{ p.costoEnvio | soles }}</dd></div>
+        }
+        <div class="total"><dt>Total a pagar</dt><dd>{{ p.total | soles }}</dd></div>
+      </dl>
+      <p class="nota">Pagas al {{ p.tipoEntrega === 'DELIVERY' ? 'recibir' : 'recoger' }}: efectivo, Yape, Plin o tarjeta.</p>
+
+      <div class="acciones">
+        <a class="boton" [routerLink]="['/seguimiento', p.codigoSeguimiento]">Seguir mi pedido</a>
+        <a class="boton secundario" [href]="enlaceWhatsapp()" target="_blank" rel="noopener">Enviar resumen por WhatsApp</a>
+      </div>
+    </section>
+  } @else {
+    <section class="tarjeta">
+      <h1>Pedido {{ codigo() }}</h1>
+      <p class="bajada">Puedes ver en qué estado está tu pedido con tu código.</p>
+      <div class="acciones">
+        <a class="boton" [routerLink]="['/seguimiento', codigo()]">Ver estado del pedido</a>
+      </div>
+    </section>
+  }
+</div>

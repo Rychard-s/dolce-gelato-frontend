@@ -1,0 +1,39 @@
+<header class="cabecera">
+  <div class="contenedor fila">
+    <a routerLink="/" class="marca" aria-label="Dolce Gelato, ir al inicio">
+      <img src="img/logo-dolce-gelato.png" alt="Dolce Gelato" width="153" height="36" />
+    </a>
+
+    @if (auth.sesion(); as sesion) {
+      <!-- Menú interno (admin y cocina) -->
+      <nav class="menu" aria-label="Interno">
+        <a routerLink="/cocina" routerLinkActive="activo">Cocina</a>
+        @if (auth.esAdmin()) {
+          <a routerLink="/admin" routerLinkActive="activo">Administración</a>
+        }
+        <a routerLink="/">Ver la web</a>
+      </nav>
+      <div class="usuario">
+        <span class="nombre">{{ sesion.nombre }}</span>
+        <button type="button" class="salir" (click)="auth.logout()">Salir</button>
+      </div>
+    } @else {
+      <nav class="menu" aria-label="Principal">
+        <a routerLink="/" fragment="carta">Carta</a>
+        <a routerLink="/seguimiento" routerLinkActive="activo">Sigue tu pedido</a>
+      </nav>
+
+      <a routerLink="/pedido" class="boton-pedido" routerLinkActive="activo" [class.lleno]="carrito.cantidad() > 0">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M6 8h12l-1 12H7L6 8Z M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+        </svg>
+        @if (carrito.cantidad() > 0) {
+          <span class="texto">{{ carrito.subtotal() | soles }}</span>
+          <span class="contador" aria-label="productos en tu pedido">{{ carrito.cantidad() }}</span>
+        } @else {
+          <span class="texto">Tu pedido</span>
+        }
+      </a>
+    }
+  </div>
+</header>

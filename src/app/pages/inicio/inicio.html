@@ -1,0 +1,117 @@
+<!-- Portada: cambia según la hora (gelato de día, burger de noche) -->
+<section class="portada" [class.noche]="esNoche">
+  <div class="contenedor portada-rejilla">
+    <div class="portada-texto">
+      <p class="estado" [class.abierto]="estado().abierto">
+        <span class="punto" aria-hidden="true"></span>{{ estado().texto }}
+      </p>
+
+      @if (esNoche) {
+        <h1>La noche es de Dolce Burger.</h1>
+        <p class="bajada">Hamburguesas, sándwiches y piqueos recién hechos. Y sí, el gelato sigue abierto.</p>
+      } @else {
+        <h1>Gelato artesanal hecho en Jesús María.</h1>
+        <p class="bajada">Elige tus sabores y toppings, pide desde aquí y recógelo en tienda o te lo llevamos.</p>
+      }
+
+      <div class="acciones">
+        <a class="boton" [class.mostaza]="esNoche" routerLink="/" fragment="carta">Ver la carta</a>
+        <a class="boton secundario" routerLink="/seguimiento">Sigue tu pedido</a>
+      </div>
+    </div>
+
+    <div class="portada-foto">
+      <img [src]="esNoche ? 'img/hamburguesas.jpg' : 'img/hero-helado.jpg'"
+        [alt]="esNoche ? 'Hamburguesa de Dolce Burger con papas' : 'Cono de gelato artesanal servido en la vitrina'" />
+    </div>
+  </div>
+</section>
+
+<!-- Promociones vigentes (RF-15) -->
+@if (promociones().length > 0) {
+  <section class="contenedor promos" aria-labelledby="titulo-promos">
+    <h2 id="titulo-promos">Promociones de hoy</h2>
+    <ul class="lista-promos">
+      @for (promo of promociones(); track promo.id) {
+        <li class="promo">
+          <span class="sello" [class.porcentaje]="promo.tipo === 'PORCENTAJE'">{{ etiquetaPromo(promo) }}</span>
+          <div class="promo-texto">
+            <h3>{{ promo.titulo }}</h3>
+            @if (promo.descripcion) { <p>{{ promo.descripcion }}</p> }
+          </div>
+          @if (promo.producto) {
+            <button type="button" class="boton secundario" (click)="pedirPromo(promo)">Pedir</button>
+          } @else {
+            <p class="promo-nota">Se aplica sola al confirmar tu pedido.</p>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+}
+
+<!-- Carta -->
+<section id="carta" class="contenedor carta" aria-labelledby="titulo-carta">
+  <div class="carta-cabecera">
+    <h2 id="titulo-carta">La carta</h2>
+    <div class="lineas" role="tablist" aria-label="Elige la línea">
+      <button type="button" role="tab" class="linea" [attr.aria-selected]="linea() === 'GELATO'"
+        [class.activa]="linea() === 'GELATO'" (click)="linea.set('GELATO')">
+        <strong>Dolce Gelato</strong><span>10:00 a 22:00</span>
+      </button>
+      <button type="button" role="tab" class="linea burger" [attr.aria-selected]="linea() === 'BURGER'"
+        [class.activa]="linea() === 'BURGER'" (click)="linea.set('BURGER')">
+        <strong>Dolce Burger</strong><span>18:30 a 22:00</span>
+      </button>
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <p class="estado-carga">Cargando la carta…</p>
+  } @else if (error()) {
+    <p class="alerta">{{ error() }}</p>
+  } @else {
+    <nav class="atajos" aria-label="Categorías">
+      @for (grupo of grupos(); track grupo.categoria.id) {
+        <button type="button" (click)="irACategoria(grupo.categoria.id)">{{ grupo.categoria.nombre }}</button>
+      }
+    </nav>
+
+    @for (grupo of grupos(); track grupo.categoria.id) {
+      <section class="categoria" [id]="'categoria-' + grupo.categoria.id">
+        <app-foto-categoria class="categoria-foto" [nombre]="grupo.categoria.nombre" [linea]="grupo.categoria.linea" />
+        <div class="categoria-lista">
+          <h3>{{ grupo.categoria.nombre }}</h3>
+          <ul class="productos">
+            @for (producto of grupo.productos; track producto.id) {
+              <li class="producto" [class.apagado]="!producto.disponibleAhora">
+                <div class="producto-info">
+                  <h4>{{ producto.nombre }}</h4>
+                  @if (producto.descripcion) { <p>{{ producto.descripcion }}</p> }
+                  @if (!producto.disponibleAhora) { <p class="horario">{{ avisoHorario(producto) }}</p> }
+                  @if (!producto.aptoDelivery) { <p class="horario">Solo para recoger en tienda</p> }
+                </div>
+                <span class="precio">{{ producto.precio | soles }}</span>
+                <button type="button" class="agregar" [disabled]="!sePuedePedir(producto)"
+                  (click)="productoArmando.set(producto)" [attr.aria-label]="'Agregar ' + producto.nombre">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" /></svg>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+    }
+  }
+</section>
+
+@if (productoArmando(); as producto) {
+  <app-armar-producto [producto]="producto" (cerrar)="productoArmando.set(null)" (agregado)="mostrarAviso($event)" />
+}
+
+@if (aviso()) {
+  <div class="aviso" role="status">
+    <span>{{ aviso() }}</span>
+    <a routerLink="/pedido">Ver mi pedido</a>
+  </div>
+}

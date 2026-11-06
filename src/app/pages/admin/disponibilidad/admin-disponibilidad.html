@@ -1,0 +1,65 @@
+<div class="encabezado">
+  <div>
+    <h2>Sabores y toppings</h2>
+    <p class="secundario-texto">Lo que marques como agotado deja de aparecer al armar un pedido. Ahora hay {{ agotados() }} agotado{{ agotados() === 1 ? '' : 's' }}.</p>
+  </div>
+  <button type="button" class="boton secundario" (click)="cargar()">Recargar</button>
+</div>
+
+@if (error()) { <p class="alerta" role="alert">{{ error() }}</p> }
+
+<div class="dos-columnas">
+  <section class="bloque">
+    <h3>Sabores de gelato</h3>
+    <ul class="lista">
+      @for (s of sabores(); track s.id) {
+        <li [class.agotado]="!s.disponible">
+          <button type="button" class="interruptor" role="switch" [attr.aria-checked]="s.disponible"
+            [attr.aria-label]="(s.disponible ? 'Marcar agotado: ' : 'Marcar disponible: ') + s.nombre" (click)="alternarSabor(s)"></button>
+          <span class="nombre">{{ s.nombre }}</span>
+          <span class="estado">{{ s.disponible ? 'Disponible' : 'Agotado' }}</span>
+          <button type="button" class="quitar" (click)="eliminarSabor(s)" [attr.aria-label]="'Eliminar ' + s.nombre">Eliminar</button>
+        </li>
+      }
+    </ul>
+    <form class="agregar" [formGroup]="formSabor" (ngSubmit)="registrarSabor()" novalidate>
+      <div class="campo">
+        <label for="nuevo-sabor">Nuevo sabor</label>
+        <input id="nuevo-sabor" formControlName="nombre" placeholder="Ej. Maracuyá" />
+      </div>
+      <button type="submit" class="boton">Agregar</button>
+    </form>
+  </section>
+
+  <section class="bloque">
+    <h3>Toppings</h3>
+    @for (grupo of [{ titulo: 'Líquidos', lista: liquidos() }, { titulo: 'Sólidos', lista: solidos() }]; track grupo.titulo) {
+      <h4>{{ grupo.titulo }}</h4>
+      <ul class="lista">
+        @for (t of grupo.lista; track t.id) {
+          <li [class.agotado]="!t.disponible">
+            <button type="button" class="interruptor" role="switch" [attr.aria-checked]="t.disponible"
+              [attr.aria-label]="(t.disponible ? 'Marcar agotado: ' : 'Marcar disponible: ') + t.nombre" (click)="alternarTopping(t)"></button>
+            <span class="nombre">{{ t.nombre }} <small>extra {{ t.precioExtra | soles }}</small></span>
+            <span class="estado">{{ t.disponible ? 'Disponible' : 'Agotado' }}</span>
+            <button type="button" class="quitar" (click)="eliminarTopping(t)" [attr.aria-label]="'Eliminar ' + t.nombre">Eliminar</button>
+          </li>
+        }
+      </ul>
+    }
+    <form class="agregar" [formGroup]="formTopping" (ngSubmit)="registrarTopping()" novalidate>
+      <div class="campo">
+        <label for="nuevo-topping">Nuevo topping</label>
+        <input id="nuevo-topping" formControlName="nombre" placeholder="Ej. Pecanas" />
+      </div>
+      <div class="campo">
+        <label for="tipo-topping">Tipo</label>
+        <select id="tipo-topping" formControlName="tipo">
+          <option value="LIQUIDO">Líquido</option>
+          <option value="SOLIDO">Sólido</option>
+        </select>
+      </div>
+      <button type="submit" class="boton">Agregar</button>
+    </form>
+  </section>
+</div>

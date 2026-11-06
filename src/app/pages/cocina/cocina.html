@@ -1,0 +1,93 @@
+<div class="contenedor pagina">
+  <div class="cabecera-panel">
+    <div>
+      <h1>Cocina</h1>
+      <p class="nota">
+        @if (actualizado()) { Actualizado a las {{ actualizado() }}. } Se actualiza solo cada 15 segundos.
+      </p>
+    </div>
+    <button type="button" class="boton secundario" (click)="cargarPedidos()" [disabled]="cargando()">
+      {{ cargando() ? 'Cargando…' : 'Recargar' }}
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  }
+
+  <div class="tablero">
+    @for (columna of columnas(); track columna.estado) {
+      <section class="columna" [attr.aria-label]="nombreEstado[columna.estado]">
+        <h2>
+          {{ nombreEstado[columna.estado] }}
+          <span class="cuenta">{{ columna.pedidos.length }}</span>
+        </h2>
+
+        @for (p of columna.pedidos; track p.id) {
+          <article class="pedido" [class.delivery]="p.tipoEntrega === 'DELIVERY'">
+            <header>
+              <strong class="codigo">{{ p.codigoSeguimiento }}</strong>
+              <span class="hora">
+                @if (p.horaSolicitada) { Para las {{ horaCorta(p.horaSolicitada) }} } @else { Pidió {{ horaDe(p.creadoEn) }} }
+              </span>
+            </header>
+
+            <p class="cliente">{{ p.nombreCliente }} · {{ p.telefono }}</p>
+            @if (p.tipoEntrega === 'DELIVERY') {
+              <p class="entrega">Delivery a {{ p.zona?.nombre }}: {{ p.direccion }} ({{ p.referencia }})</p>
+            } @else {
+              <p class="entrega">Recojo en tienda</p>
+            }
+
+            <ul class="items">
+              @for (d of p.detalles; track d.id) {
+                <li>
+                  <strong>{{ d.cantidad }} x {{ d.nombreProducto }}</strong>
+                  @if (d.sabores) { <span>{{ d.sabores }}</span> }
+                  @if (d.toppings) { <span>{{ d.toppings }}</span> }
+                  @if (d.opciones) { <span>{{ d.opciones }}</span> }
+                </li>
+              }
+            </ul>
+
+            <div class="total">
+              <span>{{ p.total | soles }}</span>
+              @if (p.pagado) {
+                <span class="etiqueta">Pagado con {{ p.metodoPago }}</span>
+              } @else {
+                <span class="etiqueta alerta-etiqueta">Por cobrar</span>
+              }
+            </div>
+
+            <div class="acciones">
+              @for (siguiente of avances(p); track siguiente) {
+                <button type="button" class="boton" [class.mostaza]="siguiente === 'ENTREGADO'"
+                  [disabled]="ocupado() === p.id" (click)="avanzar(p, siguiente)">
+                  {{ textoBoton(siguiente) }}
+                </button>
+              }
+              @if (p.estado === 'LISTO' || p.estado === 'EN_CAMINO') {
+                <a class="boton-mini" [href]="enlaceAviso(p)" target="_blank" rel="noopener">Avisar por WhatsApp</a>
+              }
+            </div>
+
+            @if (!p.pagado) {
+              <div class="pago">
+                <span>Cobrar con:</span>
+                @for (m of metodos; track m) {
+                  <button type="button" class="boton-mini" [disabled]="ocupado() === p.id" (click)="cobrar(p, m)">{{ m }}</button>
+                }
+              </div>
+            }
+
+            @if (puedeCancelar(p)) {
+              <button type="button" class="cancelar" [disabled]="ocupado() === p.id" (click)="cancelar(p)">Cancelar pedido</button>
+            }
+          </article>
+        } @empty {
+          <p class="vacio">Sin pedidos.</p>
+        }
+      </section>
+    }
+  </div>
+</div>

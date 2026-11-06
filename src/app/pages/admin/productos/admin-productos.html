@@ -1,0 +1,51 @@
+<div class="encabezado">
+  <h2>Productos</h2>
+  <div class="botones">
+    <button type="button" class="boton secundario" (click)="cargarProductos()">Recargar</button>
+    <a class="boton" routerLink="/admin/productos/nuevo">Nuevo producto</a>
+  </div>
+</div>
+
+<form class="filtros" (submit)="$event.preventDefault(); buscar(busqueda.value)">
+  <div class="campo">
+    <label for="buscar">Buscar por nombre o categoría</label>
+    <input #busqueda id="buscar" type="search" [value]="q() ?? ''" (input)="buscar(busqueda.value)" placeholder="Ej. helado, hamburguesa, frappé" />
+  </div>
+</form>
+
+@if (cargando()) { <p class="estado-carga">Cargando productos…</p> }
+@if (error()) { <p class="alerta" role="alert">{{ error() }}</p> }
+
+@if (!cargando()) {
+  <p class="secundario-texto">{{ filtrados().length }} de {{ productos().length }} productos</p>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead>
+        <tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Horario</th><th>Delivery</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        @for (p of filtrados(); track p.id) {
+          <tr>
+            <td><strong>{{ p.nombre }}</strong></td>
+            <td>{{ p.categoria.nombre }}</td>
+            <td class="nowrap">{{ p.precio | soles }}</td>
+            <td class="nowrap">{{ horaCorta(p.horaInicio) }} a {{ horaCorta(p.horaFin) }}</td>
+            <td>{{ p.aptoDelivery ? 'Sí' : 'No' }}</td>
+            <td>
+              <span class="etiqueta" [class.apagada]="!p.activo">{{ p.activo ? 'En la carta' : 'Oculto' }}</span>
+            </td>
+            <td>
+              <div class="acciones-tabla">
+                <a class="boton-mini" [routerLink]="['/admin/productos/editar', p.id]">Editar</a>
+                <button type="button" class="boton-mini" (click)="cambiarActivo(p)">{{ p.activo ? 'Ocultar' : 'Mostrar' }}</button>
+                <button type="button" class="boton-mini peligro" (click)="eliminar(p)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" class="vacio">No hay productos que coincidan con la búsqueda.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
