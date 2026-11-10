@@ -6,10 +6,10 @@ import { CarritoService, ItemCarrito } from '../../services/carrito.service';
 import { ZonaEntregaService } from '../../services/zona-entrega.service';
 import { PedidoService } from '../../services/pedido.service';
 import { NEGOCIO } from '../../shared/config';
-import { PedidoRequest, TipoEntrega } from '../../models/pedido';
+import { PedidoRequest, TipoComprobante, TipoEntrega } from '../../models/pedido';
 import { ZonaEntrega } from '../../models/zona-entrega';
 import { SolesPipe } from '../../shared/soles.pipe';
-import { aMinutos, horaCorta, mensajeDeError, minutosAhora } from '../../shared/utilidades';
+import { MONTO_BOLETA_CON_DNI, aMinutos, horaCorta, mensajeDeError, minutosAhora } from '../../shared/utilidades';
 
 @Component({
   selector: 'app-pedido',
@@ -34,12 +34,16 @@ export class Pedido implements OnInit {
     direccion: ['', Validators.maxLength(150)],
     referencia: ['', Validators.maxLength(150)],
     hora: [''],
+    documento: [''], // DNI (boleta) o RUC (factura)
+    razonSocial: ['', Validators.maxLength(120)],
   });
   private valores = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
 
   // Opciones con botones (fuera del formulario)
   protected tipoEntrega = signal<TipoEntrega>('RECOJO');
   protected programar = signal(false);
+  protected comprobante = signal<TipoComprobante>('BOLETA');
+  protected readonly montoBoletaConDni = MONTO_BOLETA_CON_DNI;
 
   protected zonas = signal<ZonaEntrega[]>([]);
   protected intentoEnviar = signal(false);
@@ -50,6 +54,9 @@ export class Pedido implements OnInit {
   protected zona = computed(() => this.zonas().find((z) => z.id === Number(this.valores().zonaId)) ?? null);
   protected envio = computed(() => (this.esDelivery() ? (this.zona()?.costoEnvio ?? 0) : 0));
   protected totalEstimado = computed(() => this.carrito.subtotal() + this.envio());
+  protected esFactura = computed(() => this.comprobante() === 'FACTURA');
+  // SUNAT: desde S/ 700 la boleta lleva DNI. Se usa el total sin descuento; el backend valida con el total final
+  protected dniObligatorio = computed(() => !this.esFactura() && this.totalEstimado() >= MONTO_BOLETA_CON_DNI);
 
   // RN-07: productos que no se pueden enviar por delivery
   protected noAptos = computed(() =>
@@ -87,6 +94,15 @@ export class Pedido implements OnInit {
         lista.push(`El pedido mínimo para delivery a ${zona.nombre} es S/ ${Number(zona.pedidoMinimo).toFixed(2)}.`);
       }
     }
+    const documento = (v.documento ?? '').trim();
+    if (this.esFactura()) {
+      if (!/^(10|15|17|20)\d{9}$/.test(documento)) lista.push('El RUC debe tener 11 dígitos y empezar con 10, 15, 17 o 20.');
+      if (!v.razonSocial?.trim()) lista.push('Escribe la razón social para la factura.');
+    } else if (documento && !/^\d{8}$/.test(documento)) {
+      lista.push('El DNI debe tener 8 dígitos.');
+    } else if (!documento && this.dniObligatorio()) {
+      lista.push(`Para boletas desde S/ ${MONTO_BOLETA_CON_DNI} escribe tu DNI.`);
+    }
     if (this.usaHora()) {
       const hora = v.hora ?? '';
       if (!hora) {
@@ -111,6 +127,14 @@ export class Pedido implements OnInit {
   protected invalido(campo: 'nombre' | 'telefono'): boolean {
     const control = this.form.controls[campo];
     return control.invalid && (control.touched || this.intentoEnviar());
+  }
+
+  // Al cambiar de boleta a factura (o al revés) se limpia el documento: DNI y RUC no son intercambiables
+  protected cambiarComprobante(tipo: TipoComprobante): void {
+    if (tipo !== this.comprobante()) {
+      this.comprobante.set(tipo);
+      this.form.controls.documento.setValue('');
+    }
   }
 
   protected detalleItem(item: ItemCarrito): string {
@@ -140,6 +164,9 @@ export class Pedido implements OnInit {
       referencia: this.esDelivery() ? v.referencia.trim() : null,
       zonaId: this.esDelivery() ? Number(v.zonaId) : null,
       horaSolicitada: this.usaHora() ? v.hora : null,
+      tipoComprobante: this.comprobante(),
+      documento: v.documento.trim() || null,
+      razonSocial: this.esFactura() ? v.razonSocial.trim() : null,
       items: this.carrito.paraEnviar(),
     };
 

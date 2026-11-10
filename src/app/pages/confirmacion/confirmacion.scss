@@ -101,6 +101,58 @@
   }
 }
 
+.tiempo {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: var(--radio-m);
+  background: var(--mostaza-claro);
+  text-align: center;
+  color: #5c4500;
+
+  strong {
+    font-family: var(--fuente-titulo);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--tinta);
+  }
+
+  .minutos {
+    font-size: 0.9rem;
+  }
+}
+
+.pago {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: var(--radio-m);
+  border: 2px dashed var(--linea);
+
+  h2 {
+    font-size: 1.15rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    color: var(--tinta-suave);
+  }
+
+  .yape {
+    font-size: 1.1rem;
+    color: var(--tinta);
+
+    strong {
+      font-family: var(--fuente-titulo);
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+    }
+  }
+}
+
 .nota {
   margin-top: 12px;
   font-size: 0.92rem;

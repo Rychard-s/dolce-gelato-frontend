@@ -2,6 +2,7 @@ import { Promocion } from './promocion';
 import { ZonaEntrega } from './zona-entrega';
 
 export type TipoEntrega = 'RECOJO' | 'DELIVERY';
+export type TipoComprobante = 'BOLETA' | 'FACTURA';
 export type MetodoPago = 'EFECTIVO' | 'YAPE' | 'PLIN' | 'TARJETA';
 export type EstadoPedido = 'RECIBIDO' | 'EN_PREPARACION' | 'LISTO' | 'EN_CAMINO' | 'ENTREGADO' | 'CANCELADO';
 
@@ -37,6 +38,11 @@ export interface Pedido {
   motivoCancelacion: string | null;
   metodoPago: MetodoPago | null;
   pagado: boolean;
+  tipoComprobante: TipoComprobante | null; // null en pedidos antiguos = boleta
+  documento: string | null; // DNI o RUC
+  razonSocial: string | null;
+  minutosEstimados: number | null;
+  horaEstimada: string | null; // calculada en el backend
   creadoEn: string;
   detalles: DetallePedido[];
   estadosSiguientes: EstadoPedido[]; // calculado en el backend (RN-10)
@@ -50,6 +56,8 @@ export interface Seguimiento {
   total: number;
   horaSolicitada: string | null;
   creadoEn: string;
+  minutosEstimados: number | null;
+  horaEstimada: string | null;
 }
 
 // Lo que se envía al crear un pedido (nunca lleva precios)
@@ -69,6 +77,9 @@ export interface PedidoRequest {
   referencia: string | null;
   zonaId: number | null;
   horaSolicitada: string | null;
+  tipoComprobante: TipoComprobante;
+  documento: string | null;
+  razonSocial: string | null;
   items: ItemPedidoRequest[];
 }
 

@@ -34,12 +34,15 @@
     <ul class="lista-promos">
       @for (promo of promociones(); track promo.id) {
         <li class="promo">
-          <span class="sello" [class.porcentaje]="promo.tipo === 'PORCENTAJE'">{{ etiquetaPromo(promo) }}</span>
+          <span class="sello" [class.porcentaje]="promo.tipo === 'PORCENTAJE'" [class.cantidad]="promo.tipo === 'CANTIDAD'">{{ etiquetaPromo(promo) }}</span>
           <div class="promo-texto">
+            @if (diaPromo(promo)) { <span class="dia">{{ diaPromo(promo) }}</span> }
             <h3>{{ promo.titulo }}</h3>
             @if (promo.descripcion) { <p>{{ promo.descripcion }}</p> }
           </div>
-          @if (promo.producto) {
+          @if (promo.soloEnTienda) {
+            <p class="promo-nota">Válida solo en la tienda de Jr. Huiracocha 1505.</p>
+          } @else if (promo.producto || promo.categoria) {
             <button type="button" class="boton secundario" (click)="pedirPromo(promo)">Pedir</button>
           } @else {
             <p class="promo-nota">Se aplica sola al confirmar tu pedido.</p>

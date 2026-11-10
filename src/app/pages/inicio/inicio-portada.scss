@@ -162,6 +162,23 @@ h1 {
     background: var(--petroleo-hondo);
     color: var(--blanco);
   }
+
+  &.cantidad {
+    font-size: 0.95rem;
+    line-height: 1.1;
+    text-align: center;
+  }
+}
+
+.dia {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--mostaza-claro);
+  color: #6b5100;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 @media (max-width: 860px) {

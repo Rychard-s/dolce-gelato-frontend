@@ -69,6 +69,7 @@ export class AdminProductos implements OnInit {
       horaInicio: horaCorta(producto.horaInicio),
       horaFin: horaCorta(producto.horaFin),
       cantidadSabores: producto.cantidadSabores,
+      saboresMinimos: producto.saboresMinimos,
       toppingsLiquidos: producto.toppingsLiquidos,
       toppingsSolidos: producto.toppingsSolidos,
       aptoDelivery: producto.aptoDelivery,

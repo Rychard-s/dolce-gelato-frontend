@@ -8,7 +8,8 @@ export interface Producto {
   categoria: Categoria;
   horaInicio: string; // "18:30:00"
   horaFin: string;
-  cantidadSabores: number;
+  cantidadSabores: number; // máximo de sabores
+  saboresMinimos: number;  // mínimo (ej. helado de litro: de 1 a 3)
   toppingsLiquidos: number;
   toppingsSolidos: number;
   aptoDelivery: boolean;
@@ -25,6 +26,7 @@ export interface ProductoGuardar {
   horaInicio: string;
   horaFin: string;
   cantidadSabores: number;
+  saboresMinimos: number;
   toppingsLiquidos: number;
   toppingsSolidos: number;
   aptoDelivery: boolean;

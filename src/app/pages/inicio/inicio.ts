@@ -4,7 +4,7 @@ import { ProductoService } from '../../services/producto.service';
 import { PromocionService } from '../../services/promocion.service';
 import { Categoria, Linea } from '../../models/categoria';
 import { Producto } from '../../models/producto';
-import { Promocion } from '../../models/promocion';
+import { NOMBRE_DIA, Promocion } from '../../models/promocion';
 import { SolesPipe } from '../../shared/soles.pipe';
 import { aMinutos, horaCorta, mensajeDeError, minutosAhora, momentoActual } from '../../shared/utilidades';
 import { ArmarProducto } from '../../components/armar-producto/armar-producto';
@@ -93,16 +93,34 @@ export class Inicio implements OnInit {
   }
 
   protected etiquetaPromo(promo: Promocion): string {
-    return promo.tipo === 'PORCENTAJE' ? `-${Number(promo.valor)}%` : `S/ ${Number(promo.valor)}`;
+    switch (promo.tipo) {
+      case 'PORCENTAJE':
+        return Number(promo.valor) === 50 && promo.soloEnTienda ? '2x1' : `-${Number(promo.valor)}%`;
+      case 'CANTIDAD':
+        return `${promo.cantidad} x S/ ${Number(promo.valor)}`;
+      default:
+        return `S/ ${Number(promo.valor)}`;
+    }
+  }
+
+  // "Hoy, martes" para las promociones semanales
+  protected diaPromo(promo: Promocion): string {
+    return promo.diaSemana ? `Hoy, ${NOMBRE_DIA[promo.diaSemana].toLowerCase()}` : '';
   }
 
   protected pedirPromo(promo: Promocion): void {
     if (promo.producto) {
       const enCarta = this.carta().find((p) => p.id === promo.producto!.id);
       if (enCarta && this.sePuedePedir(enCarta)) {
+        this.linea.set(enCarta.categoria.linea);
         this.productoArmando.set(enCarta);
         return;
       }
+    }
+    if (promo.categoria) {
+      this.linea.set(promo.categoria.linea);
+      setTimeout(() => this.irACategoria(promo.categoria!.id));
+      return;
     }
     document.getElementById('carta')?.scrollIntoView();
   }

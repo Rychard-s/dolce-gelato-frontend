@@ -24,8 +24,8 @@
           <fieldset class="grupo">
             <legend>
               <span>Sabores</span>
-              <span class="indicacion" [class.completo]="saboresElegidos().length === producto().cantidadSabores">
-                {{ saboresElegidos().length }} de {{ producto().cantidadSabores }}
+              <span class="indicacion" [class.completo]="saboresElegidos().length >= minSabores()">
+                {{ textoSabores() }}
               </span>
             </legend>
             <div class="chips">

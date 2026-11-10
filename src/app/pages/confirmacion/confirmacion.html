@@ -8,8 +8,20 @@
         } @else {
           Te avisamos cuando esté listo para recoger en {{ negocio.direccion }}.
         }
-        @if (p.horaSolicitada) { Hora elegida: {{ horaCorta(p.horaSolicitada) }}. }
       </p>
+
+      @if (p.horaEstimada) {
+        <div class="tiempo">
+          @if (p.horaSolicitada) {
+            <span>Lo tendremos para las</span>
+            <strong>{{ horaCorta(p.horaSolicitada) }}</strong>
+          } @else {
+            <span>{{ p.tipoEntrega === 'DELIVERY' ? 'Llega aproximadamente a las' : 'Listo aproximadamente a las' }}</span>
+            <strong>{{ horaCorta(p.horaEstimada) }}</strong>
+            <span class="minutos">unos {{ p.minutosEstimados }} minutos</span>
+          }
+        </div>
+      }
 
       <div class="codigo">
         <span>Tu código de seguimiento</span>
@@ -41,7 +53,22 @@
         }
         <div class="total"><dt>Total a pagar</dt><dd>{{ p.total | soles }}</dd></div>
       </dl>
-      <p class="nota">Pagas al {{ p.tipoEntrega === 'DELIVERY' ? 'recibir' : 'recoger' }}: efectivo, Yape, Plin o tarjeta.</p>
+      <p class="nota">
+        {{ p.tipoComprobante === 'FACTURA' ? 'Factura' : 'Boleta' }}
+        @if (p.documento) { {{ p.tipoComprobante === 'FACTURA' ? 'con RUC' : 'con DNI' }} {{ p.documento }} }
+        @if (p.razonSocial) { a nombre de {{ p.razonSocial }} }
+        · te la entregamos con tu pedido.
+      </p>
+
+      <div class="pago">
+        <h2>¿Cómo pagas?</h2>
+        <p>
+          Pagas al {{ p.tipoEntrega === 'DELIVERY' ? 'recibir' : 'recoger' }}:
+          {{ p.tipoEntrega === 'DELIVERY' ? 'efectivo, Yape o Plin (la tarjeta es solo en tienda).' : 'efectivo, Yape, Plin o tarjeta.' }}
+        </p>
+        <p class="yape">Yape o Plin al <strong>{{ negocio.yapePlin }}</strong></p>
+        <p>Si pagas con Yape o Plin, pon tu código <strong>{{ p.codigoSeguimiento }}</strong> en el mensaje y muestra la captura al {{ p.tipoEntrega === 'DELIVERY' ? 'repartidor' : 'recoger' }}.</p>
+      </div>
 
       <div class="acciones">
         <a class="boton" [routerLink]="['/seguimiento', p.codigoSeguimiento]">Seguir mi pedido</a>

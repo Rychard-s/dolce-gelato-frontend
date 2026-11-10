@@ -88,13 +88,25 @@ export class ArmarProducto implements AfterViewInit {
   protected readonly precioUnitario = computed(() => this.producto().precio + this.costoExtras());
   protected readonly total = computed(() => this.precioUnitario() * this.cantidad());
 
+  // RN-02: rango de sabores (ej. helado 2 sabores: 2 a 2; helado de litro: 1 a 3)
+  protected readonly maxSabores = computed(() => this.producto().cantidadSabores);
+  protected readonly minSabores = computed(() =>
+    Math.min(this.producto().saboresMinimos || this.producto().cantidadSabores, this.producto().cantidadSabores),
+  );
+  protected readonly textoSabores = computed(() => {
+    const elegidos = this.saboresElegidos().length;
+    return this.minSabores() === this.maxSabores()
+      ? `${elegidos} de ${this.maxSabores()}`
+      : `${elegidos} (de ${this.minSabores()} a ${this.maxSabores()})`;
+  });
+
   // Lo que falta elegir antes de poder agregar
   protected readonly faltantes = computed(() => {
     const lista: string[] = [];
-    const requeridos = this.producto().cantidadSabores;
+    const minimo = this.minSabores();
     const elegidos = this.saboresElegidos().length;
-    if (elegidos < requeridos) {
-      const faltan = requeridos - elegidos;
+    if (elegidos < minimo) {
+      const faltan = minimo - elegidos;
       lista.push(`Elige ${faltan} ${faltan === 1 ? 'sabor más' : 'sabores más'}`);
     }
     for (const grupo of this.grupos()) {

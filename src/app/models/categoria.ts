@@ -5,4 +5,5 @@ export interface Categoria {
   nombre: string;
   linea: Linea;
   orden: number;
+  minutosPreparacion?: number; // para el tiempo estimado del pedido
 }

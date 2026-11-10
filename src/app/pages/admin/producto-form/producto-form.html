@@ -46,8 +46,14 @@
   </div>
 
   <div class="campo">
-    <label for="sabores">Sabores de helado (0 a 3)</label>
+    <label for="sabores">Sabores de helado: máximo (0 a 3)</label>
     <input id="sabores" type="number" min="0" max="3" formControlName="cantidadSabores" [class.con-error]="invalido('cantidadSabores')" />
+  </div>
+
+  <div class="campo">
+    <label for="minimos">Sabores de helado: mínimo</label>
+    <input id="minimos" type="number" min="0" max="3" formControlName="saboresMinimos" [class.con-error]="invalido('saboresMinimos')" />
+    <span class="ayuda">Igual al máximo si es fijo. Ej. litro: mínimo 1, máximo 3.</span>
   </div>
 
   <div class="campo">

@@ -99,6 +99,37 @@
           }
         </section>
 
+        <section class="bloque" aria-labelledby="titulo-comprobante">
+          <h2 id="titulo-comprobante">Comprobante</h2>
+          <div class="opciones-entrega compacta" role="radiogroup" aria-label="Tipo de comprobante">
+            <button type="button" role="radio" [attr.aria-checked]="!esFactura()" [class.activa]="!esFactura()"
+              (click)="cambiarComprobante('BOLETA')"><strong>Boleta</strong></button>
+            <button type="button" role="radio" [attr.aria-checked]="esFactura()" [class.activa]="esFactura()"
+              (click)="cambiarComprobante('FACTURA')"><strong>Factura</strong></button>
+          </div>
+          <div class="campos" [class.par]="esFactura()">
+            @if (esFactura()) {
+              <div class="campo">
+                <label for="documento">RUC</label>
+                <input id="documento" inputmode="numeric" maxlength="11" formControlName="documento" placeholder="20123456789" />
+              </div>
+              <div class="campo">
+                <label for="razonSocial">Razón social</label>
+                <input id="razonSocial" autocomplete="organization" formControlName="razonSocial" placeholder="Mi Empresa S.A.C." />
+              </div>
+            } @else {
+              <div class="campo documento">
+                <label for="documento">DNI {{ dniObligatorio() ? '' : '(opcional)' }}</label>
+                <input id="documento" inputmode="numeric" maxlength="8" formControlName="documento" placeholder="12345678" />
+                <span class="ayuda">
+                  {{ dniObligatorio() ? 'Desde S/ ' + montoBoletaConDni + ' la boleta debe llevar tu DNI.' : 'Si quieres la boleta a tu nombre.' }}
+                </span>
+              </div>
+            }
+          </div>
+          <p class="ayuda-bloque">Te entregamos el comprobante junto con tu pedido.</p>
+        </section>
+
         <section class="bloque" aria-labelledby="titulo-datos">
           <h2 id="titulo-datos">Tus datos</h2>
           <div class="campos dos">
@@ -131,7 +162,14 @@
           }
           <div class="total"><dt>Total estimado</dt><dd>{{ totalEstimado() | soles }}</dd></div>
         </dl>
-        <p class="nota">Si tu pedido tiene una promoción, el descuento se aplica al confirmar. Pagas al recoger o recibir: efectivo, Yape, Plin o tarjeta.</p>
+        <p class="nota">
+          Si tu pedido tiene una promoción, el descuento se aplica al confirmar.
+          @if (esDelivery()) {
+            Pagas al recibir: efectivo, Yape o Plin (tarjeta solo en tienda).
+          } @else {
+            Pagas al recoger: efectivo, Yape, Plin o tarjeta.
+          }
+        </p>
 
         @if (intentoEnviar() && errores().length > 0) {
           <div class="alerta" role="alert">

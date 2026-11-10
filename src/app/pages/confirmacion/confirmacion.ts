@@ -34,6 +34,7 @@ export class Confirmacion {
       `Total: S/ ${Number(p.total).toFixed(2)}`,
       p.tipoEntrega === 'DELIVERY' ? `Delivery a: ${p.direccion} (${p.referencia})` : 'Recojo en tienda',
       `A nombre de: ${p.nombreCliente}`,
+      `Comprobante: ${p.tipoComprobante === 'FACTURA' ? 'Factura' : 'Boleta'}${p.documento ? ' ' + p.documento : ''}`,
     ];
     return `https://wa.me/${NEGOCIO.whatsapp}?text=${encodeURIComponent(lineas.join('\n'))}`;
   });

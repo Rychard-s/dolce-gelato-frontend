@@ -161,6 +161,20 @@
     grid-template-columns: 1fr 1fr;
     margin-top: 0;
   }
+
+  &.par {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.campo.documento {
+  max-width: 320px;
+}
+
+.ayuda-bloque {
+  margin-top: 12px;
+  font-size: 0.86rem;
+  color: var(--tinta-suave);
 }
 
 .campo.hora {
@@ -248,7 +262,8 @@
   }
 
   .opciones-entrega,
-  .campos.dos {
+  .campos.dos,
+  .campos.par {
     grid-template-columns: 1fr;
   }
 }

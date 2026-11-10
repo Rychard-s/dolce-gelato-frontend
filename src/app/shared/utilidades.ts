@@ -35,6 +35,9 @@ export function horaCorta(hora: string | null | undefined): string {
   return hora ? hora.slice(0, 5) : '';
 }
 
+// SUNAT: desde S/ 700 la boleta debe llevar DNI (el backend también lo valida)
+export const MONTO_BOLETA_CON_DNI = 700;
+
 // Momento del día según los horarios de las dos líneas
 export type Momento = 'antes' | 'gelato' | 'ambos' | 'cerrado';
 

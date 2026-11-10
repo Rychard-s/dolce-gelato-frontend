@@ -16,6 +16,30 @@
   }
 }
 
+.botones-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  .sonido-activo {
+    background: var(--petroleo-claro);
+  }
+}
+
+.aviso-nuevo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radio-s);
+  background: var(--mostaza-claro);
+  border-left: 4px solid var(--mostaza);
+  color: #5c4500;
+}
+
 .nota {
   color: var(--tinta-suave);
   font-size: 0.92rem;
@@ -76,6 +100,15 @@
     border-left-color: var(--mostaza);
   }
 
+  &.nuevo {
+    box-shadow: 0 0 0 3px var(--mostaza), 0 6px 18px -14px rgba(0, 0, 0, 0.5);
+    animation: latido 1.2s ease-in-out 3;
+  }
+
+  .etiqueta {
+    justify-self: start;
+  }
+
   header {
     display: flex;
     justify-content: space-between;
@@ -94,6 +127,23 @@
 .entrega {
   font-size: 0.85rem;
   color: var(--tinta-suave);
+}
+
+.estimado,
+.comprobante {
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}
+
+.estimado {
+  font-weight: 600;
+  color: var(--petroleo-hondo);
+}
+
+@keyframes latido {
+  50% {
+    transform: scale(1.02);
+  }
 }
 
 .cliente {

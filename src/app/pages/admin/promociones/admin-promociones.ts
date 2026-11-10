@@ -2,8 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PromocionService } from '../../../services/promocion.service';
 import { ProductoService } from '../../../services/producto.service';
-import { Promocion, PromocionGuardar } from '../../../models/promocion';
+import { CategoriaService } from '../../../services/categoria.service';
+import { DiaSemana, NOMBRE_DIA, Promocion, PromocionGuardar, TipoPromocion } from '../../../models/promocion';
 import { Producto } from '../../../models/producto';
+import { Categoria } from '../../../models/categoria';
 import { SolesPipe } from '../../../shared/soles.pipe';
 import { mensajeConEstado } from '../../../shared/utilidades';
 
@@ -18,9 +20,13 @@ export class AdminPromociones implements OnInit {
   private fb = inject(FormBuilder);
   private promocionService = inject(PromocionService);
   private productoService = inject(ProductoService);
+  private categoriaService = inject(CategoriaService);
 
   promociones = signal<Promocion[]>([]);
   productos = signal<Producto[]>([]);
+  categorias = signal<Categoria[]>([]);
+  protected dias = Object.entries(NOMBRE_DIA) as [DiaSemana, string][];
+  protected nombreDia = NOMBRE_DIA;
   cargando = signal(false);
   error = signal('');
   mostrarFormulario = signal(false);
@@ -30,9 +36,15 @@ export class AdminPromociones implements OnInit {
   form = this.fb.nonNullable.group({
     titulo: ['', [Validators.required, Validators.maxLength(80)]],
     descripcion: ['', Validators.maxLength(255)],
-    tipo: ['PORCENTAJE' as 'PORCENTAJE' | 'PRECIO_FIJO', Validators.required],
+    tipo: ['PORCENTAJE' as TipoPromocion, Validators.required],
     valor: [10, [Validators.required, Validators.min(0.01)]],
+    // A qué aplica: 'TODO', 'PRODUCTO' o 'CATEGORIA'
+    aplicaA: ['TODO' as 'TODO' | 'PRODUCTO' | 'CATEGORIA'],
     productoId: [0],
+    categoriaId: [0],
+    cantidad: [2, [Validators.min(2)]],
+    diaSemana: ['' as DiaSemana | ''],
+    soloEnTienda: [false],
     fechaInicio: [this.hoy(), Validators.required],
     fechaFin: [this.hoy(30), Validators.required],
     activa: [true],
@@ -43,6 +55,10 @@ export class AdminPromociones implements OnInit {
     this.productoService.listar().subscribe({
       next: (datos) => this.productos.set([...datos].sort((a, b) => a.nombre.localeCompare(b.nombre))),
       error: () => this.productos.set([]),
+    });
+    this.categoriaService.listar().subscribe({
+      next: (datos) => this.categorias.set(datos),
+      error: () => this.categorias.set([]),
     });
   }
 
@@ -73,7 +89,12 @@ export class AdminPromociones implements OnInit {
       descripcion: p.descripcion ?? '',
       tipo: p.tipo,
       valor: p.valor,
+      aplicaA: p.producto ? 'PRODUCTO' : p.categoria ? 'CATEGORIA' : 'TODO',
       productoId: p.producto?.id ?? 0,
+      categoriaId: p.categoria?.id ?? 0,
+      cantidad: p.cantidad ?? 2,
+      diaSemana: p.diaSemana ?? '',
+      soloEnTienda: p.soloEnTienda,
       fechaInicio: p.fechaInicio,
       fechaFin: p.fechaFin,
       activa: p.activa,
@@ -92,7 +113,11 @@ export class AdminPromociones implements OnInit {
       descripcion: v.descripcion.trim() || null,
       tipo: v.tipo,
       valor: Number(v.valor),
-      producto: Number(v.productoId) > 0 ? { id: Number(v.productoId) } : null,
+      producto: v.aplicaA === 'PRODUCTO' && Number(v.productoId) > 0 ? { id: Number(v.productoId) } : null,
+      categoria: v.aplicaA === 'CATEGORIA' && Number(v.categoriaId) > 0 ? { id: Number(v.categoriaId) } : null,
+      cantidad: v.tipo === 'CANTIDAD' ? Number(v.cantidad) : null,
+      diaSemana: v.diaSemana || null,
+      soloEnTienda: v.soloEnTienda,
       fechaInicio: v.fechaInicio,
       fechaFin: v.fechaFin,
       activa: v.activa,
@@ -131,7 +156,20 @@ export class AdminPromociones implements OnInit {
   }
 
   descuento(p: Promocion): string {
-    return p.tipo === 'PORCENTAJE' ? `${Number(p.valor)} % de descuento` : `Precio especial S/ ${Number(p.valor).toFixed(2)}`;
+    switch (p.tipo) {
+      case 'PORCENTAJE':
+        return `${Number(p.valor)} % de descuento`;
+      case 'CANTIDAD':
+        return `${p.cantidad} por S/ ${Number(p.valor).toFixed(2)}`;
+      default:
+        return `Precio especial S/ ${Number(p.valor).toFixed(2)}`;
+    }
+  }
+
+  aplicaA(p: Promocion): string {
+    if (p.producto) return p.producto.nombre;
+    if (p.categoria) return `Categoría ${p.categoria.nombre}`;
+    return 'Todo el pedido';
   }
 
   private hoy(masDias = 0): string {

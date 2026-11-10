@@ -28,21 +28,68 @@
       <label for="tipo">Tipo</label>
       <select id="tipo" formControlName="tipo">
         <option value="PORCENTAJE">Porcentaje de descuento</option>
-        <option value="PRECIO_FIJO">Precio especial</option>
+        <option value="PRECIO_FIJO">Precio especial por unidad</option>
+        <option value="CANTIDAD">Por cantidad (ej. 2 por S/ 60)</option>
       </select>
     </div>
 
+    @if (form.controls.tipo.value === 'CANTIDAD') {
+      <div class="campo">
+        <label for="cantidad">Unidades</label>
+        <input id="cantidad" type="number" min="2" formControlName="cantidad" />
+      </div>
+    }
+
     <div class="campo">
-      <label for="valor">{{ form.controls.tipo.value === 'PORCENTAJE' ? 'Porcentaje (%)' : 'Precio especial (S/)' }}</label>
+      <label for="valor">
+        @switch (form.controls.tipo.value) {
+          @case ('PORCENTAJE') { Porcentaje (%) }
+          @case ('CANTIDAD') { Precio de todas las unidades (S/) }
+          @default { Precio especial (S/) }
+        }
+      </label>
       <input id="valor" type="number" step="0.5" min="0" formControlName="valor" />
     </div>
 
     <div class="campo">
-      <label for="producto">Producto</label>
-      <select id="producto" formControlName="productoId">
-        <option [ngValue]="0">Todo el pedido (solo porcentaje)</option>
-        @for (p of productos(); track p.id) {
-          <option [ngValue]="p.id">{{ p.nombre }} ({{ p.precio | soles }})</option>
+      <label for="aplica">Aplica a</label>
+      <select id="aplica" formControlName="aplicaA">
+        <option value="TODO">Todo el pedido (solo porcentaje)</option>
+        <option value="PRODUCTO">Un producto</option>
+        <option value="CATEGORIA">Una categoría</option>
+      </select>
+    </div>
+
+    @if (form.controls.aplicaA.value === 'PRODUCTO') {
+      <div class="campo">
+        <label for="producto">Producto</label>
+        <select id="producto" formControlName="productoId">
+          <option [ngValue]="0">Elige un producto</option>
+          @for (p of productos(); track p.id) {
+            <option [ngValue]="p.id">{{ p.nombre }} ({{ p.precio | soles }})</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (form.controls.aplicaA.value === 'CATEGORIA') {
+      <div class="campo">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" formControlName="categoriaId">
+          <option [ngValue]="0">Elige una categoría</option>
+          @for (c of categorias(); track c.id) {
+            <option [ngValue]="c.id">{{ c.nombre }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <div class="campo">
+      <label for="dia">Día de la semana</label>
+      <select id="dia" formControlName="diaSemana">
+        <option value="">Todos los días</option>
+        @for (d of dias; track d[0]) {
+          <option [value]="d[0]">Solo los {{ d[1].toLowerCase() }}</option>
         }
       </select>
     </div>
@@ -62,6 +109,11 @@
       <label for="activa">Activa</label>
     </div>
 
+    <div class="campo check">
+      <input id="tienda" type="checkbox" formControlName="soloEnTienda" />
+      <label for="tienda">Solo en tienda (se muestra en la web, pero no se aplica a pedidos web)</label>
+    </div>
+
     <div class="botones">
       <button type="submit" class="boton" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Guardar promoción' }}</button>
       <button type="button" class="boton secundario" (click)="mostrarFormulario.set(false)">Cancelar</button>
@@ -75,20 +127,24 @@
   <div class="tabla-contenedor">
     <table class="tabla">
       <thead>
-        <tr><th>Promoción</th><th>Descuento</th><th>Producto</th><th>Vigencia</th><th>Estado</th><th>Acciones</th></tr>
+        <tr><th>Promoción</th><th>Descuento</th><th>Aplica a</th><th>Cuándo</th><th>Estado</th><th>Acciones</th></tr>
       </thead>
       <tbody>
         @for (p of promociones(); track p.id) {
           <tr>
             <td><strong>{{ p.titulo }}</strong></td>
             <td>{{ descuento(p) }}</td>
-            <td>{{ p.producto?.nombre ?? 'Todo el pedido' }}</td>
-            <td class="nowrap">{{ p.fechaInicio }}<br />al {{ p.fechaFin }}</td>
+            <td>{{ aplicaA(p) }}</td>
+            <td class="nowrap">
+              {{ p.diaSemana ? 'Los ' + nombreDia[p.diaSemana].toLowerCase() : 'Todos los días' }}
+              @if (p.soloEnTienda) { <br /><span class="etiqueta mostaza">Solo en tienda</span> }
+              <br /><span class="secundario-texto">{{ p.fechaInicio }} al {{ p.fechaFin }}</span>
+            </td>
             <td>
               @if (p.vigente) {
                 <span class="etiqueta">Vigente</span>
               } @else if (p.activa) {
-                <span class="etiqueta mostaza">Fuera de fecha</span>
+                <span class="etiqueta mostaza">{{ p.diaSemana ? 'Otro día' : 'Fuera de fecha' }}</span>
               } @else {
                 <span class="etiqueta apagada">Desactivada</span>
               }

@@ -6,10 +6,23 @@
         @if (actualizado()) { Actualizado a las {{ actualizado() }}. } Se actualiza solo cada 15 segundos.
       </p>
     </div>
-    <button type="button" class="boton secundario" (click)="cargarPedidos()" [disabled]="cargando()">
-      {{ cargando() ? 'Cargando…' : 'Recargar' }}
-    </button>
+    <div class="botones-panel">
+      <button type="button" class="boton secundario" [class.sonido-activo]="sonidoActivo()" (click)="alternarSonido()"
+        [attr.aria-pressed]="sonidoActivo()">
+        {{ sonidoActivo() ? '🔔 Sonido activado' : '🔕 Activar sonido' }}
+      </button>
+      <button type="button" class="boton secundario" (click)="cargarPedidos()" [disabled]="cargando()">
+        {{ cargando() ? 'Cargando…' : 'Recargar' }}
+      </button>
+    </div>
   </div>
+
+  @if (avisoNuevos()) {
+    <div class="aviso-nuevo" role="status">
+      <strong>{{ avisoNuevos() }}</strong>
+      <button type="button" class="boton-mini" (click)="marcarVisto()">Entendido</button>
+    </div>
+  }
 
   @if (error()) {
     <p class="alerta" role="alert">{{ error() }}</p>
@@ -24,13 +37,17 @@
         </h2>
 
         @for (p of columna.pedidos; track p.id) {
-          <article class="pedido" [class.delivery]="p.tipoEntrega === 'DELIVERY'">
+          <article class="pedido" [class.delivery]="p.tipoEntrega === 'DELIVERY'" [class.nuevo]="nuevos().has(p.id)">
             <header>
               <strong class="codigo">{{ p.codigoSeguimiento }}</strong>
               <span class="hora">
                 @if (p.horaSolicitada) { Para las {{ horaCorta(p.horaSolicitada) }} } @else { Pidió {{ horaDe(p.creadoEn) }} }
               </span>
             </header>
+            @if (nuevos().has(p.id)) { <span class="etiqueta mostaza">Nuevo</span> }
+            @if (!p.horaSolicitada && p.horaEstimada) {
+              <p class="estimado">{{ p.tipoEntrega === 'DELIVERY' ? 'Entregar aprox.' : 'Listo aprox.' }} {{ horaCorta(p.horaEstimada) }} ({{ p.minutosEstimados }} min)</p>
+            }
 
             <p class="cliente">{{ p.nombreCliente }} · {{ p.telefono }}</p>
             @if (p.tipoEntrega === 'DELIVERY') {
@@ -38,6 +55,8 @@
             } @else {
               <p class="entrega">Recojo en tienda</p>
             }
+
+            <p class="comprobante">{{ textoComprobante(p) }}</p>
 
             <ul class="items">
               @for (d of p.detalles; track d.id) {
@@ -74,7 +93,7 @@
             @if (!p.pagado) {
               <div class="pago">
                 <span>Cobrar con:</span>
-                @for (m of metodos; track m) {
+                @for (m of metodosPara(p); track m) {
                   <button type="button" class="boton-mini" [disabled]="ocupado() === p.id" (click)="cobrar(p, m)">{{ m }}</button>
                 }
               </div>

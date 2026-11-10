@@ -23,7 +23,11 @@
         </div>
         <dl>
           <div><dt>Entrega</dt><dd>{{ d.tipoEntrega === 'DELIVERY' ? 'Delivery' : 'Recojo en tienda' }}</dd></div>
-          @if (d.horaSolicitada) { <div><dt>Hora</dt><dd>{{ horaCorta(d.horaSolicitada) }}</dd></div> }
+          @if (d.horaSolicitada) {
+            <div><dt>Hora elegida</dt><dd>{{ horaCorta(d.horaSolicitada) }}</dd></div>
+          } @else if (d.horaEstimada && d.estado !== 'ENTREGADO' && d.estado !== 'CANCELADO') {
+            <div><dt>{{ d.tipoEntrega === 'DELIVERY' ? 'Llega aprox.' : 'Listo aprox.' }}</dt><dd>{{ horaCorta(d.horaEstimada) }}</dd></div>
+          }
           <div><dt>Total</dt><dd>{{ d.total | soles }}</dd></div>
         </dl>
       </div>
