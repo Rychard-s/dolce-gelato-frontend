@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductoService } from '../../services/producto.service';
 import { PromocionService } from '../../services/promocion.service';
@@ -19,7 +19,8 @@ interface GrupoCarta {
   selector: 'app-inicio',
   imports: [RouterLink, SolesPipe, ArmarProducto, FotoCategoria],
   templateUrl: './inicio.html',
-  styleUrls: ['./inicio-portada.scss', './inicio.scss'],
+  styleUrls: ['./inicio-portada.scss', './inicio-indice.scss', './inicio.scss'],
+  host: { '(window:scroll)': 'alHacerScroll()' },
 })
 export class Inicio implements OnInit {
   private readonly productoService = inject(ProductoService);
@@ -36,6 +37,12 @@ export class Inicio implements OnInit {
 
   protected readonly linea = signal<Linea>(this.esNoche ? 'BURGER' : 'GELATO');
   protected readonly productoArmando = signal<Producto | null>(null);
+
+  // Categoría que se está viendo al bajar por la carta (se resalta en el índice)
+  private readonly categoriaActiva = signal<number | null>(null);
+  protected readonly activa = computed(() => this.categoriaActiva() ?? this.grupos()[0]?.categoria.id ?? null);
+  private readonly atajos = viewChild<ElementRef<HTMLElement>>('atajos');
+  private marcoPendiente = false;
   protected readonly aviso = signal('');
   private temporizadorAviso?: ReturnType<typeof setTimeout>;
 
@@ -63,6 +70,14 @@ export class Inicio implements OnInit {
         return { abierto: false, texto: 'Cerramos por hoy. Te esperamos mañana desde las 10:00.' };
     }
   });
+
+  constructor() {
+    // Al cambiar entre Dolce Gelato y Dolce Burger, el índice vuelve a la primera categoría
+    effect(() => {
+      this.linea();
+      this.categoriaActiva.set(null);
+    });
+  }
 
   ngOnInit(): void {
     this.productoService.carta().subscribe({
@@ -127,6 +142,48 @@ export class Inicio implements OnInit {
 
   protected irACategoria(id: number): void {
     document.getElementById(`categoria-${id}`)?.scrollIntoView();
+    this.categoriaActiva.set(id);
+    this.centrarAtajo(id);
+  }
+
+  // Al hacer scroll se marca la categoría visible (una vez por cuadro de animación, para no recalcular de más)
+  protected alHacerScroll(): void {
+    if (this.marcoPendiente) return;
+    this.marcoPendiente = true;
+    requestAnimationFrame(() => {
+      this.marcoPendiente = false;
+      this.actualizarActiva();
+    });
+  }
+
+  private actualizarActiva(): void {
+    const grupos = this.grupos();
+    if (grupos.length === 0) return;
+    // Una categoría se marca cuando su título pasa el primer tercio de la pantalla
+    const limite = Math.max(window.innerWidth < 1000 ? 170 : 130, window.innerHeight * 0.3);
+    let actual = grupos[0].categoria.id;
+    for (const grupo of grupos) {
+      const seccion = document.getElementById(`categoria-${grupo.categoria.id}`);
+      if (seccion && seccion.getBoundingClientRect().top - limite <= 0) {
+        actual = grupo.categoria.id;
+      }
+    }
+    if (actual !== this.activa()) {
+      this.categoriaActiva.set(actual);
+      this.centrarAtajo(actual);
+    }
+  }
+
+  // En celular la barra se desliza sola para que la categoría marcada quede a la vista
+  private centrarAtajo(id: number): void {
+    const barra = this.atajos()?.nativeElement;
+    const boton = barra?.querySelector<HTMLElement>(`[data-id="${id}"]`);
+    if (!barra || !boton) return;
+    if (barra.scrollWidth > barra.clientWidth) {
+      barra.scrollTo({ left: boton.offsetLeft - barra.clientWidth / 2 + boton.offsetWidth / 2, behavior: 'smooth' });
+    } else if (barra.scrollHeight > barra.clientHeight) {
+      barra.scrollTo({ top: boton.offsetTop - barra.clientHeight / 2, behavior: 'smooth' });
+    }
   }
 
   protected mostrarAviso(nombre: string): void {

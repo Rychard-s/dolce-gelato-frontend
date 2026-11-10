@@ -1,0 +1,39 @@
+<div class="contenedor pagina">
+  <h1>Mis pedidos</h1>
+  <p class="bajada">Hola, {{ auth.sesion()?.nombre }}. Aquí están tus últimos pedidos.</p>
+
+  @if (cargando()) {
+    <p class="nota">Cargando tus pedidos…</p>
+  } @else if (error()) {
+    <p class="alerta" role="alert">{{ error() }}</p>
+  } @else {
+    <ul class="lista">
+      @for (p of pedidos(); track p.id) {
+        <li class="pedido" [class.activo]="enCurso(p)">
+          <div class="cabeza">
+            <div>
+              <strong class="codigo">{{ p.codigoSeguimiento }}</strong>
+              <span class="fecha">{{ fechaDe(p.creadoEn) }} · {{ horaDe(p.creadoEn) }}</span>
+            </div>
+            <span class="etiqueta" [class.apagada]="p.estado === 'ENTREGADO'" [class.alerta-etiqueta]="p.estado === 'CANCELADO'"
+              [class.mostaza]="enCurso(p)">{{ nombreEstado[p.estado] }}</span>
+          </div>
+          <p class="productos">{{ resumen(p) }}</p>
+          <div class="pie-pedido">
+            <span>{{ p.tipoEntrega === 'DELIVERY' ? 'Delivery' : 'Recojo en tienda' }}
+              · {{ p.tipoComprobante === 'FACTURA' ? 'Factura' : 'Boleta' }}</span>
+            <strong>{{ p.total | soles }}</strong>
+          </div>
+          @if (enCurso(p)) {
+            <a class="boton-mini" [routerLink]="['/seguimiento', p.codigoSeguimiento]">Ver cómo va</a>
+          }
+        </li>
+      } @empty {
+        <li class="vacio">
+          <p>Todavía no tienes pedidos con tu cuenta.</p>
+          <a class="boton" routerLink="/" fragment="carta">Ver la carta</a>
+        </li>
+      }
+    </ul>
+  }
+</div>

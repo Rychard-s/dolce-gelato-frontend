@@ -73,6 +73,9 @@
       <div class="acciones">
         <a class="boton" [routerLink]="['/seguimiento', p.codigoSeguimiento]">Seguir mi pedido</a>
         <a class="boton secundario" [href]="enlaceWhatsapp()" target="_blank" rel="noopener">Enviar resumen por WhatsApp</a>
+        @if (auth.esCliente()) {
+          <a class="boton secundario" routerLink="/mis-pedidos">Mis pedidos</a>
+        }
       </div>
     </section>
   } @else {

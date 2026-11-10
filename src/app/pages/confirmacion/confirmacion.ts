@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PedidoService } from '../../services/pedido.service';
+import { AuthService } from '../../services/auth.service';
 import { NEGOCIO } from '../../shared/config';
 import { SolesPipe } from '../../shared/soles.pipe';
 import { horaCorta } from '../../shared/utilidades';
@@ -15,6 +16,7 @@ export class Confirmacion {
   readonly codigo = input.required<string>(); // viene de la URL /pedido/:codigo
 
   private readonly pedidos = inject(PedidoService);
+  protected readonly auth = inject(AuthService);
   protected readonly copiado = signal(false);
   protected readonly horaCorta = horaCorta;
   protected readonly negocio = NEGOCIO;

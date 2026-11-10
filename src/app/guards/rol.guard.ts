@@ -3,7 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { Rol } from '../models/usuario';
 
-// Protege las páginas internas según el rol (RN-14)
+// Protege las páginas según el rol: internas (admin, cocina) y del cliente (mis pedidos)
 export function rolGuard(rolesPermitidos: Rol[]): CanActivateFn {
   return (_route, state) => {
     const auth = inject(AuthService);
@@ -16,6 +16,6 @@ export function rolGuard(rolesPermitidos: Rol[]): CanActivateFn {
     if (rol && rolesPermitidos.includes(rol)) {
       return true;
     }
-    return router.createUrlTree([rol === 'COCINA' ? '/cocina' : '/']);
+    return router.createUrlTree([rol ? auth.inicioSegunRol(rol) : '/']);
   };
 }

@@ -171,6 +171,16 @@
   max-width: 320px;
 }
 
+.cuenta {
+  margin: -6px 0 16px;
+  font-size: 0.9rem;
+  color: var(--tinta-suave);
+
+  a {
+    font-weight: 700;
+  }
+}
+
 .ayuda-bloque {
   margin-top: 12px;
   font-size: 0.86rem;

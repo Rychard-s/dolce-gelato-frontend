@@ -13,8 +13,9 @@ export class DetallePedidoService {
     return this.http.get<DetallePedido[]>(this.apiUrl, { params: { pedidoId } });
   }
 
-  // RF-17
-  masVendidos(): Observable<ProductoVendido[]> {
-    return this.http.get<ProductoVendido[]>(`${this.apiUrl}/mas-vendidos`);
+  // RF-17: sin fechas trae todo el historial
+  masVendidos(desde?: string, hasta?: string): Observable<ProductoVendido[]> {
+    const params: Record<string, string> = desde && hasta ? { desde, hasta } : {};
+    return this.http.get<ProductoVendido[]>(`${this.apiUrl}/mas-vendidos`, { params });
   }
 }

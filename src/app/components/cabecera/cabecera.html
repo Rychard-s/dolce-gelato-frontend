@@ -4,7 +4,7 @@
       <img src="img/logo-dolce-gelato.png" alt="Dolce Gelato" width="153" height="36" />
     </a>
 
-    @if (auth.sesion(); as sesion) {
+    @if (auth.esPersonal()) {
       <!-- Menú interno (admin y cocina) -->
       <nav class="menu" aria-label="Interno">
         <a routerLink="/cocina" routerLinkActive="activo">Cocina</a>
@@ -14,13 +14,25 @@
         <a routerLink="/">Ver la web</a>
       </nav>
       <div class="usuario">
-        <span class="nombre">{{ sesion.nombre }}</span>
+        <span class="nombre" title="Usuario con sesión iniciada">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+            <path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <span class="solo-lectores">Sesión de</span> {{ auth.sesion()?.nombre }}
+        </span>
         <button type="button" class="salir" (click)="auth.logout()">Salir</button>
       </div>
     } @else {
-      <nav class="menu" aria-label="Principal">
+      <!-- Menú del cliente (con o sin cuenta) -->
+      <nav class="menu publico" aria-label="Principal">
         <a routerLink="/" fragment="carta">Carta</a>
         <a routerLink="/seguimiento" routerLinkActive="activo">Sigue tu pedido</a>
+        @if (auth.esCliente()) {
+          <a routerLink="/mis-pedidos" routerLinkActive="activo">Mis pedidos</a>
+        } @else {
+          <a routerLink="/login" routerLinkActive="activo">Ingresar</a>
+        }
       </nav>
 
       <a routerLink="/pedido" class="boton-pedido" routerLinkActive="activo" [class.lleno]="carrito.cantidad() > 0">
@@ -34,6 +46,12 @@
           <span class="texto">Tu pedido</span>
         }
       </a>
+
+      @if (auth.esCliente()) {
+        <button type="button" class="salir-cliente" (click)="auth.logout()" [attr.aria-label]="'Salir de la cuenta de ' + auth.sesion()?.nombre">
+          Salir
+        </button>
+      }
     }
   </div>
 </header>

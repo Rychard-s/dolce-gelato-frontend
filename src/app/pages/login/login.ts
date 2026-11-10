@@ -1,12 +1,12 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { mensajeDeError } from '../../shared/utilidades';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -36,7 +36,7 @@ export class Login {
     this.mensaje.set('');
     this.auth.login(this.form.getRawValue()).subscribe({
       next: (sesion) => {
-        const destino = this.volver() || (sesion.rol === 'ADMIN' ? '/admin' : '/cocina');
+        const destino = this.volver() || this.auth.inicioSegunRol(sesion.rol);
         this.router.navigateByUrl(destino);
       },
       error: (err) => {

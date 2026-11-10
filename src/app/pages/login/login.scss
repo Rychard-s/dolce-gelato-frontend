@@ -27,3 +27,14 @@
   margin-top: -10px;
   color: var(--tinta-suave);
 }
+
+.cambio {
+  padding-top: 14px;
+  border-top: 1px dashed var(--linea);
+  font-size: 0.92rem;
+  color: var(--tinta-suave);
+
+  a {
+    font-weight: 700;
+  }
+}

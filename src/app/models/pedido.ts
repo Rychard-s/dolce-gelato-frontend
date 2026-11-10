@@ -88,3 +88,49 @@ export interface ProductoVendido {
   nombreProducto: string;
   cantidad: number;
 }
+
+// ===== Reportes del administrador =====
+
+export interface VentaPorMetodo {
+  metodoPago: MetodoPago | null; // null = entregado sin pago registrado
+  pedidos: number;
+  monto: number;
+}
+
+export interface VentaPorPromocion {
+  promocion: string;
+  usos: number;
+  descuento: number;
+}
+
+export interface VentaPorDia {
+  fecha: string; // "2026-11-10"
+  pedidos: number;
+  monto: number;
+}
+
+export interface ReporteVentas {
+  desde: string;
+  hasta: string;
+  pedidosEntregados: number;
+  pedidosCancelados: number;
+  pedidosEnCurso: number;
+  pedidosRecojo: number;
+  pedidosDelivery: number;
+  ventas: number;
+  descuentos: number;
+  envios: number;
+  ticketPromedio: number;
+  porMetodoPago: VentaPorMetodo[];
+  porPromocion: VentaPorPromocion[];
+  porDia: VentaPorDia[];
+}
+
+// Respuesta paginada del backend (PaginaResponse)
+export interface Pagina<T> {
+  contenido: T[];
+  pagina: number; // empieza en 0
+  tamanio: number;
+  totalElementos: number;
+  totalPaginas: number;
+}

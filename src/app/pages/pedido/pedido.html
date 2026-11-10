@@ -132,6 +132,11 @@
 
         <section class="bloque" aria-labelledby="titulo-datos">
           <h2 id="titulo-datos">Tus datos</h2>
+          @if (auth.esCliente()) {
+            <p class="cuenta">Pediste con tu cuenta: este pedido quedará en <a routerLink="/mis-pedidos">Mis pedidos</a>.</p>
+          } @else {
+            <p class="cuenta">¿Tienes cuenta? <a routerLink="/login" [queryParams]="{ volver: '/pedido' }">Ingresa</a> y tus datos se llenan solos. También puedes pedir sin cuenta.</p>
+          }
           <div class="campos dos">
             <div class="campo">
               <label for="nombre">Nombre</label>

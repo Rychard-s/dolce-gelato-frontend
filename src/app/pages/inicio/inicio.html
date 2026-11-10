@@ -10,8 +10,8 @@
         <h1>La noche es de Dolce Burger.</h1>
         <p class="bajada">Hamburguesas, sándwiches y piqueos recién hechos. Y sí, el gelato sigue abierto.</p>
       } @else {
-        <h1>Gelato artesanal hecho en Jesús María.</h1>
-        <p class="bajada">Elige tus sabores y toppings, pide desde aquí y recógelo en tienda o te lo llevamos.</p>
+        <h1>La pasión hecha sabor.</h1>
+        <p class="bajada">Hecho a mano, servido con cariño: helados artesanales, crepes, waffles, frappés y más. Arma tu pedido aquí y recógelo en tienda o te lo llevamos.</p>
       }
 
       <div class="acciones">
@@ -74,12 +74,20 @@
   } @else if (error()) {
     <p class="alerta">{{ error() }}</p>
   } @else {
-    <nav class="atajos" aria-label="Categorías">
+    <div class="carta-cuerpo" [class.burger]="linea() === 'BURGER'">
+    <!-- Índice de categorías: columna fija a la izquierda en PC, barra deslizable arriba en celular -->
+    <nav #atajos class="atajos" aria-label="Categorías">
+      <p class="atajos-titulo">Categorías</p>
       @for (grupo of grupos(); track grupo.categoria.id) {
-        <button type="button" (click)="irACategoria(grupo.categoria.id)">{{ grupo.categoria.nombre }}</button>
+        <button type="button" [attr.data-id]="grupo.categoria.id" [class.activa]="grupo.categoria.id === activa()"
+          [attr.aria-current]="grupo.categoria.id === activa() ? 'true' : null" (click)="irACategoria(grupo.categoria.id)">
+          <span>{{ grupo.categoria.nombre }}</span>
+          <small>{{ grupo.productos.length }}</small>
+        </button>
       }
     </nav>
 
+    <div class="secciones">
     @for (grupo of grupos(); track grupo.categoria.id) {
       <section class="categoria" [id]="'categoria-' + grupo.categoria.id">
         <app-foto-categoria class="categoria-foto" [nombre]="grupo.categoria.nombre" [linea]="grupo.categoria.linea" />
@@ -105,6 +113,8 @@
         </div>
       </section>
     }
+    </div>
+    </div>
   }
 </section>
 

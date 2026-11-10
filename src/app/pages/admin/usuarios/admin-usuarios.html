@@ -33,6 +33,7 @@
       <select id="rol" formControlName="rol">
         <option value="COCINA">Cocina / caja</option>
         <option value="ADMIN">Administrador</option>
+        <option value="CLIENTE">Cliente (web)</option>
       </select>
     </div>
     <div class="campo check">
@@ -57,7 +58,7 @@
           <tr>
             <td><strong>{{ u.username }}</strong></td>
             <td>{{ u.nombre }}</td>
-            <td>{{ u.rol === 'ADMIN' ? 'Administrador' : 'Cocina / caja' }}</td>
+            <td>{{ u.rol === 'ADMIN' ? 'Administrador' : u.rol === 'COCINA' ? 'Cocina / caja' : 'Cliente (web)' }}</td>
             <td><span class="etiqueta" [class.apagada]="!u.activo">{{ u.activo ? 'Activo' : 'Bloqueado' }}</span></td>
             <td>
               <div class="acciones-tabla">

@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { API_URL } from '../shared/config';
-import { EstadoPedido, MetodoPago, Pedido, PedidoRequest, Seguimiento } from '../models/pedido';
+import { EstadoPedido, MetodoPago, Pagina, Pedido, PedidoRequest, ReporteVentas, Seguimiento } from '../models/pedido';
 
 const CLAVE_ULTIMO = 'dolce-gelato-ultimo-pedido';
 
@@ -37,6 +37,23 @@ export class PedidoService {
   listar(estado?: EstadoPedido): Observable<Pedido[]> {
     const params: Record<string, string> = estado ? { estado } : {};
     return this.http.get<Pedido[]>(this.apiUrl, { params });
+  }
+
+  // Cliente con sesión: sus pedidos
+  misPedidos(): Observable<Pedido[]> {
+    return this.http.get<Pedido[]>(`${this.apiUrl}/mios`);
+  }
+
+  // Admin: reporte de ventas de un rango de fechas ("2026-11-01")
+  reporte(desde: string, hasta: string): Observable<ReporteVentas> {
+    return this.http.get<ReporteVentas>(`${this.apiUrl}/reporte`, { params: { desde, hasta } });
+  }
+
+  // Admin: historial paginado
+  historial(desde: string, hasta: string, pagina: number, tamanio: number, estado?: EstadoPedido): Observable<Pagina<Pedido>> {
+    const params: Record<string, string | number> = { desde, hasta, pagina, tamanio };
+    if (estado) params['estado'] = estado;
+    return this.http.get<Pagina<Pedido>>(`${this.apiUrl}/historial`, { params });
   }
 
   buscarPorId(id: number): Observable<Pedido> {

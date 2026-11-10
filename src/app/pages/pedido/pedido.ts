@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CarritoService, ItemCarrito } from '../../services/carrito.service';
 import { ZonaEntregaService } from '../../services/zona-entrega.service';
 import { PedidoService } from '../../services/pedido.service';
+import { AuthService } from '../../services/auth.service';
 import { NEGOCIO } from '../../shared/config';
 import { PedidoRequest, TipoComprobante, TipoEntrega } from '../../models/pedido';
 import { ZonaEntrega } from '../../models/zona-entrega';
@@ -23,6 +24,7 @@ export class Pedido implements OnInit {
   private zonaService = inject(ZonaEntregaService);
   private pedidoService = inject(PedidoService);
   private router = inject(Router);
+  protected auth = inject(AuthService);
 
   protected negocio = NEGOCIO;
 
@@ -117,6 +119,11 @@ export class Pedido implements OnInit {
   });
 
   ngOnInit(): void {
+    // Cliente con cuenta: sus datos se llenan solos (su usuario es su celular)
+    const sesion = this.auth.sesion();
+    if (sesion && this.auth.esCliente()) {
+      this.form.patchValue({ nombre: sesion.nombre, telefono: sesion.username });
+    }
     this.zonaService.listar(true).subscribe({ next: (z) => this.zonas.set(z), error: () => this.zonas.set([]) });
     if (this.debeProgramar()) {
       this.programar.set(true);

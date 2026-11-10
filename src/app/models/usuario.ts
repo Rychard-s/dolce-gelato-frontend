@@ -1,4 +1,5 @@
-export type Rol = 'ADMIN' | 'COCINA';
+// ADMIN y COCINA: personal del local. CLIENTE: se registra desde la web
+export type Rol = 'ADMIN' | 'COCINA' | 'CLIENTE';
 
 export interface Usuario {
   id: number;
@@ -6,6 +7,7 @@ export interface Usuario {
   nombre: string;
   rol: Rol;
   activo: boolean;
+  telefono?: string | null; // solo clientes
 }
 
 // Al registrar la contraseña es obligatoria; al editar, si va vacía se mantiene
@@ -15,6 +17,13 @@ export interface UsuarioGuardar {
   password: string | null;
   rol: Rol;
   activo: boolean;
+}
+
+// Registro de clientes: el celular será su usuario
+export interface RegistroRequest {
+  nombre: string;
+  telefono: string;
+  password: string;
 }
 
 export interface LoginRequest {

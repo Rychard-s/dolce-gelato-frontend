@@ -80,7 +80,8 @@
     height: 26px;
   }
 
-  .menu a:first-child {
+  .menu a:first-child,
+  .menu.publico a:nth-child(2) {
     display: none;
   }
 
@@ -104,8 +105,29 @@
   gap: 10px;
 
   .nombre {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--petroleo-claro);
     font-weight: 600;
-    color: var(--tinta-suave);
+    font-size: 0.9rem;
+    color: var(--petroleo-hondo);
+  }
+}
+
+.salir-cliente {
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  color: var(--tinta-suave);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--tinta);
   }
 }
 

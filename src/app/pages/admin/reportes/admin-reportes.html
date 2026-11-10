@@ -1,27 +1,116 @@
 <div class="encabezado">
   <h2>Reportes</h2>
-  <button type="button" class="boton secundario" (click)="cargar()">Recargar</button>
+  <button type="button" class="boton secundario" (click)="cargar()" [disabled]="cargando()">
+    {{ cargando() ? 'Cargando…' : 'Recargar' }}
+  </button>
 </div>
+
+<!-- Filtro de fechas -->
+<div class="periodos" role="group" aria-label="Periodo del reporte">
+  <button type="button" [class.activo]="periodo() === 'HOY'" (click)="elegirPeriodo('HOY')">Hoy</button>
+  <button type="button" [class.activo]="periodo() === 'SEMANA'" (click)="elegirPeriodo('SEMANA')">Últimos 7 días</button>
+  <button type="button" [class.activo]="periodo() === 'MES'" (click)="elegirPeriodo('MES')">Este mes</button>
+  <button type="button" [class.activo]="periodo() === 'RANGO'" (click)="elegirPeriodo('RANGO')">Elegir fechas</button>
+</div>
+
+@if (periodo() === 'RANGO') {
+  <form class="rango" (submit)="$event.preventDefault(); aplicarRango(fDesde.value, fHasta.value)">
+    <div class="campo">
+      <label for="desde">Desde</label>
+      <input #fDesde id="desde" type="date" [value]="desde()" />
+    </div>
+    <div class="campo">
+      <label for="hasta">Hasta</label>
+      <input #fHasta id="hasta" type="date" [value]="hasta()" />
+    </div>
+    <button type="submit" class="boton">Ver reporte</button>
+  </form>
+}
 
 @if (error()) { <p class="alerta" role="alert">{{ error() }}</p> }
 
-<div class="cifras">
-  <div class="cifra"><strong>{{ entregados().length }}</strong><span>pedidos entregados</span></div>
-  <div class="cifra"><strong>{{ totalVendido() | soles }}</strong><span>vendido en pedidos entregados</span></div>
-  <div class="cifra"><strong>{{ porTipo().recojo }} / {{ porTipo().delivery }}</strong><span>recojo / delivery</span></div>
-  <div class="cifra"><strong>{{ cancelados().length }}</strong><span>pedidos cancelados</span></div>
-</div>
+@if (reporte(); as r) {
+  <p class="rango-texto">
+    @if (r.desde === r.hasta) { Ventas del {{ fechaDe(r.desde) }} } @else { Ventas del {{ fechaDe(r.desde) }} al {{ fechaDe(r.hasta) }} }
+    · se cuentan los pedidos entregados.
+  </p>
+
+  <div class="cifras">
+    <div class="cifra principal"><strong>{{ r.ventas | soles }}</strong><span>vendido</span></div>
+    <div class="cifra"><strong>{{ r.pedidosEntregados }}</strong><span>pedidos entregados</span></div>
+    <div class="cifra"><strong>{{ r.ticketPromedio | soles }}</strong><span>ticket promedio</span></div>
+    <div class="cifra"><strong>{{ r.pedidosRecojo }} / {{ r.pedidosDelivery }}</strong><span>recojo / delivery</span></div>
+    <div class="cifra"><strong>{{ r.descuentos | soles }}</strong><span>descontado en promociones</span></div>
+    <div class="cifra"><strong>{{ r.envios | soles }}</strong><span>cobrado por delivery</span></div>
+    <div class="cifra"><strong>{{ r.pedidosCancelados }}</strong><span>cancelados</span></div>
+    <div class="cifra"><strong>{{ r.pedidosEnCurso }}</strong><span>todavía en curso</span></div>
+  </div>
+
+  <div class="dos-columnas">
+    <section class="bloque">
+      <h3>Cuadre de caja</h3>
+      @if (r.porMetodoPago.length === 0) {
+        <p class="vacio">Sin ventas en este periodo.</p>
+      } @else {
+        <table class="tabla">
+          <thead><tr><th>Método</th><th>Pedidos</th><th>Monto</th></tr></thead>
+          <tbody>
+            @for (m of r.porMetodoPago; track m.metodoPago) {
+              <tr [class.pendiente]="m.metodoPago === null">
+                <td>{{ nombreMetodo(m.metodoPago) }}</td>
+                <td>{{ m.pedidos }}</td>
+                <td>{{ m.monto | soles }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot><tr><td colspan="2">Cobrado</td><td>{{ cobrado() | soles }}</td></tr></tfoot>
+        </table>
+      }
+    </section>
+
+    <section class="bloque">
+      <h3>Promociones usadas</h3>
+      @if (r.porPromocion.length === 0) {
+        <p class="vacio">Ningún pedido entregado usó promociones.</p>
+      } @else {
+        <table class="tabla">
+          <thead><tr><th>Promoción</th><th>Usos</th><th>Descuento</th></tr></thead>
+          <tbody>
+            @for (p of r.porPromocion; track p.promocion) {
+              <tr><td>{{ p.promocion }}</td><td>{{ p.usos }}</td><td>{{ p.descuento | soles }}</td></tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  </div>
+
+  @if (r.porDia.length > 1) {
+    <section class="bloque">
+      <h3>Ventas por día</h3>
+      <ol class="barras montos">
+        @for (d of r.porDia; track d.fecha) {
+          <li>
+            <span class="nombre">{{ fechaDe(d.fecha) }} <small>({{ d.pedidos }})</small></span>
+            <span class="barra"><span [style.width]="anchoDia(d.monto)"></span></span>
+            <span class="cantidad">{{ d.monto | soles }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+  }
+}
 
 <section class="bloque">
   <h3>Productos más vendidos</h3>
   @if (masVendidos().length === 0) {
-    <p class="vacio">Todavía no hay ventas registradas.</p>
+    <p class="vacio">Todavía no hay ventas en este periodo.</p>
   } @else {
     <ol class="barras">
       @for (p of masVendidos(); track p.nombreProducto) {
         <li>
           <span class="nombre">{{ p.nombreProducto }}</span>
-          <span class="barra"><span [style.width]="ancho(p.cantidad)"></span></span>
+          <span class="barra"><span [style.width]="anchoVendido(p.cantidad)"></span></span>
           <span class="cantidad">{{ p.cantidad }}</span>
         </li>
       }
@@ -30,24 +119,48 @@
 </section>
 
 <section class="bloque">
-  <h3>Pedidos entregados</h3>
-  <div class="tabla-contenedor">
-    <table class="tabla">
-      <thead><tr><th>Código</th><th>Hora</th><th>Cliente</th><th>Entrega</th><th>Pago</th><th>Total</th></tr></thead>
-      <tbody>
-        @for (p of entregados(); track p.id) {
-          <tr>
-            <td><strong>{{ p.codigoSeguimiento }}</strong></td>
-            <td>{{ horaDe(p.creadoEn) }}</td>
-            <td>{{ p.nombreCliente }}</td>
-            <td>{{ p.tipoEntrega === 'DELIVERY' ? 'Delivery' : 'Recojo' }}</td>
-            <td>{{ p.pagado ? p.metodoPago : 'Sin registrar' }}</td>
-            <td>{{ p.total | soles }}</td>
-          </tr>
-        } @empty {
-          <tr><td colspan="6" class="vacio">Aún no hay pedidos entregados.</td></tr>
-        }
-      </tbody>
-    </table>
+  <div class="titulo-historial">
+    <h3>Historial de pedidos</h3>
+    <div class="campo">
+      <label for="estado" class="solo-lectores">Estado</label>
+      <select id="estado" [value]="estadoFiltro()" (change)="filtrarEstado($any($event.target).value)">
+        <option value="">Todos los estados</option>
+        @for (e of estados; track e) { <option [value]="e">{{ nombreEstado[e] }}</option> }
+      </select>
+    </div>
   </div>
+
+  @if (historial(); as h) {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead><tr><th>Código</th><th>Fecha</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th>Pago</th><th>Total</th></tr></thead>
+        <tbody>
+          @for (p of h.contenido; track p.id) {
+            <tr>
+              <td><strong>{{ p.codigoSeguimiento }}</strong></td>
+              <td class="nowrap">{{ fechaDe(p.creadoEn) }} {{ horaDe(p.creadoEn) }}</td>
+              <td>{{ p.nombreCliente }}</td>
+              <td>{{ p.tipoEntrega === 'DELIVERY' ? 'Delivery' : 'Recojo' }}</td>
+              <td><span class="etiqueta" [class.alerta-etiqueta]="p.estado === 'CANCELADO'"
+                [class.apagada]="p.estado === 'ENTREGADO'">{{ nombreEstado[p.estado] }}</span></td>
+              <td>{{ p.pagado ? p.metodoPago : '—' }}</td>
+              <td class="nowrap">{{ p.total | soles }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="vacio">No hay pedidos en este periodo.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (h.totalPaginas > 1) {
+      <nav class="paginacion" aria-label="Páginas del historial">
+        <button type="button" class="boton-mini" [disabled]="h.pagina === 0" (click)="irAPagina(h.pagina - 1)">Anterior</button>
+        <span>Página {{ h.pagina + 1 }} de {{ h.totalPaginas }} · {{ h.totalElementos }} pedidos</span>
+        <button type="button" class="boton-mini" [disabled]="h.pagina + 1 >= h.totalPaginas" (click)="irAPagina(h.pagina + 1)">Siguiente</button>
+      </nav>
+    } @else if (h.totalElementos > 0) {
+      <p class="paginacion"><span>{{ h.totalElementos }} pedido(s)</span></p>
+    }
+  }
 </section>

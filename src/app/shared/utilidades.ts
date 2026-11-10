@@ -69,3 +69,17 @@ export function mensajeConEstado(error: unknown): string {
 export function horaDe(fechaHora: string | null | undefined): string {
   return fechaHora ? fechaHora.slice(11, 16) : '';
 }
+
+// "2026-11-05T15:31:42" o "2026-11-05" → "05/11/2026"
+export function fechaDe(fecha: string | null | undefined): string {
+  if (!fecha) return '';
+  const [anio, mes, dia] = fecha.slice(0, 10).split('-');
+  return `${dia}/${mes}/${anio}`;
+}
+
+// Fecha local en formato "2026-11-05" (para los filtros de los reportes)
+export function fechaIso(fecha: Date): string {
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  return `${fecha.getFullYear()}-${mes}-${dia}`;
+}
